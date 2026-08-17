@@ -18,6 +18,23 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <!-- إيقاف الأصوات - Disable Sounds -->
     <script src="./disable-sounds.js"></script>
+    <!-- TEMP error reporter -->
+    <script>
+      window.addEventListener('error', function(e){
+        var d=document.getElementById('root')||document.body;
+        var p=document.createElement('pre');
+        p.style.cssText='color:red;background:#fff;padding:10px;font-size:14px;white-space:pre-wrap;z-index:99999;position:relative';
+        p.textContent='[JS ERROR] '+e.message+' \n @ '+(e.filename||'')+':'+e.lineno+':'+e.colno+'\n'+(e.error&&e.error.stack||'');
+        d.parentNode.insertBefore(p,d);
+      });
+      window.addEventListener('unhandledrejection', function(e){
+        var d=document.getElementById('root')||document.body;
+        var p=document.createElement('pre');
+        p.style.cssText='color:darkred;background:#fee;padding:10px;font-size:14px;z-index:99999;position:relative';
+        p.textContent='[UNHANDLED PROMISE] '+(e.reason&&(e.reason.message||e.reason))+'\n'+(e.reason&&e.reason.stack||'');
+        d.parentNode.insertBefore(p,d);
+      });
+    </script>
     <!-- Firebase Configuration -->
     <script src="./firebase-config.js"></script>
     <!-- ⚠️ PRODUCTION BYPASS: يسمح بتسجيل الدخول بدون التحقق من Firebase مؤقتاً -->
@@ -30,7 +47,7 @@
         } catch (e) {}
       })();
     </script>
-    <script type="module" crossorigin src="./assets/index-cfjlmbui.js"></script>
+    <script type="module" crossorigin src="./assets/index-cfjlmbui.js?v=DK12"></script>
     <link rel="stylesheet" crossorigin href="./assets/index-cdllrzoq.css">
   </head>
   <body>
