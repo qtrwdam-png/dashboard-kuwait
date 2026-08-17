@@ -2,3 +2,4 @@ server.log
 *.log
 __pycache__/
 .agent_tmp/
+.env
