@@ -1,4 +1,4 @@
-# robots.txt — مزارع الثنيان (kuwait-dashboard.netlify.app)
+# robots.txt — مزارع الثنيان (althenayanfarms.app)
 # السماح بزحف وفهرسة الصفحة الرئيسية وسلة الطلبات فقط
 # منع زحف صفحات الدفع والتحقق ولوحات التحكم والصفحات الداخلية
 
@@ -40,4 +40,4 @@ User-agent: ClaudeBot
 Disallow: /
 
 # --- خريطة الموقع ---
-Sitemap: https://kuwait-dashboard.netlify.app/sitemap.xml
+Sitemap: https://althenayanfarms.app/sitemap.xml
