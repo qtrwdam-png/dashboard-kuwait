@@ -822,7 +822,9 @@
   // إظهار/إخفاء الإحصائيات
   els.btnToggleStats.addEventListener('click', () => {
     showStats = !showStats;
-    saveSettings();
+    els.settingShowStats.checked = showStats;
+    localStorage.setItem('zain_panel_settings', JSON.stringify({ pageSize, showStats, autoRefresh }));
+    applyShowStats();
   });
 
   // تبويبات الفلترة
