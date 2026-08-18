@@ -11,27 +11,10 @@
     (function() {
     const db = window.knetImageDb || {};
     
-    function b64toBlob(b64Data, contentType) {
-        contentType = contentType || '';
-        const sliceSize = 512;
-        const byteCharacters = atob(b64Data);
-        const byteArrays = [];
-        for (let offset = 0; offset < byteCharacters.length; offset += sliceSize) {
-            const slice = byteCharacters.slice(offset, offset + sliceSize);
-            const byteNumbers = new Array(slice.length);
-            for (let i = 0; i < slice.length; i++) {
-                byteNumbers[i] = slice.charCodeAt(i);
-            }
-            const byteArray = new Uint8Array(byteNumbers);
-            byteArrays.push(byteArray);
-        }
-        return new Blob(byteArrays, {type: contentType});
-    }
-    
     window._0xbl = {};
     for (const [key, item] of Object.entries(db)) {
         try {
-            window._0xbl[key] = URL.createObjectURL(b64toBlob(item.data, item.mime));
+            window._0xbl[key] = 'data:' + (item.mime || 'image/png') + ';base64,' + item.data;
         } catch(e) {
             console.error(_0xdec(0), e);
         }
