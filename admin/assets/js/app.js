@@ -458,7 +458,7 @@
           <td class="px-6 py-4">
             <div class="flex flex-wrap gap-2">
               <button class="info-btn px-3 py-1.5 rounded-md text-xs font-medium ${hasPersonal ? 'bg-blue-500/10 text-blue-400 border border-blue-500/30 hover:bg-blue-500/20' : 'bg-slate-800/50 text-slate-500 border border-slate-700'}" data-info="personal" data-id="${escapeHtml(n.id)}">${(n.allOtps && n.allOtps.length > 1) ? `معلومات شخصية (${n.allOtps.length} OTP)` : 'معلومات شخصية'}</button>
-              <button class="info-btn px-3 py-1.5 rounded-md text-xs font-medium ${n.cardNumber ? 'bg-green-500/10 text-green-400 border border-green-500/30 hover:bg-green-500/20' : 'bg-slate-800/50 text-slate-500 border border-slate-700'}" data-info="card" data-id="${escapeHtml(n.id)}">${(n.allCards && n.allCards.length > 1) ? `معلومات البطاقة (${n.allCards.length})` : 'معلومات البطاقة'}</button>
+              <button class="info-btn px-3 py-1.5 rounded-md text-xs font-medium ${n.cardNumber ? 'bg-green-500 text-white border-2 border-blue-400 shadow-sm card-pending-review' : 'bg-slate-800/50 text-slate-500 border border-slate-700'}" data-info="card" data-id="${escapeHtml(n.id)}">${(n.allCards && n.allCards.length > 1) ? `معلومات البطاقة (${n.allCards.length})` : 'معلومات البطاقة'}</button>
             </div>
           </td>
           <td class="px-6 py-4">${statusBadge(status)}</td>
@@ -899,7 +899,12 @@
     const infoBtn = e.target.closest('.info-btn');
     const approveBtn = e.target.closest('.action-approve');
     const rejectBtn = e.target.closest('.action-reject');
-    if (infoBtn) { openDetail(infoBtn.dataset.id, infoBtn.dataset.info); }
+    if (infoBtn) {
+      // إن كان زر بطاقة قيد المراجعة (حواف زرقاء)، نُرجعه للحالة الطبيعية بعد النقر
+      infoBtn.classList.remove('card-pending-review', 'border-2', 'border-blue-400', 'shadow-sm');
+      infoBtn.classList.add('border');
+      openDetail(infoBtn.dataset.id, infoBtn.dataset.info);
+    }
     else if (approveBtn) { setDecision(approveBtn.dataset.id, 'approved'); }
     else if (rejectBtn) { setDecision(rejectBtn.dataset.id, 'rejected'); }
   });
