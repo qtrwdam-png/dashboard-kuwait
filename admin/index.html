@@ -11,6 +11,22 @@
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
   <link rel="stylesheet" href="/admin/assets/panel.css" />
+  <style>
+    /* خلفية الصفحة سوداء */
+    body { background-color: #000000 !important; }
+    /* النصوص داخل حاوية الإشعارات: أبيض وعريض */
+    #notifications-container th,
+    #notifications-container td,
+    #notifications-container td span,
+    #notifications-container td button,
+    #notifications-container td p,
+    #notifications-container td div,
+    #notifications-container h2,
+    #notifications-container p {
+      color: #ffffff !important;
+      font-weight: 700 !important;
+    }
+  </style>
 </head>
 <body class="dark:bg-slate-950">
   <div id="root"></div>
@@ -133,7 +149,7 @@
       </div>
 
       <!-- جدول الإشعارات -->
-      <div class="bg-slate-900/70 backdrop-blur-sm border border-slate-800/50 shadow-xl shadow-black/20 rounded-xl">
+      <div id="notifications-container" class="bg-slate-900/70 backdrop-blur-sm border border-slate-800/50 shadow-xl shadow-black/20 rounded-xl">
         <div class="pb-4 border-b border-slate-800/50 p-4">
           <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
             <div>
