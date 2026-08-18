@@ -9,6 +9,7 @@
     <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
     <script src="./assets/js/firebase-client.js"></script>
     <script src="./assets/js/products-store.js"></script>
+    <script src="./assets/js/cart.js"></script>
     <title>مزارع الثنيان - Althenayan Farms</title>
     <style>
         * {
@@ -342,7 +343,7 @@
             <div class="Header_nav__DVSK7">
                 <div class="Header_logoWithCatalog__v4fgc">
                     <a class="Logo_logo__oq6_b" href="#">
-                        <img alt="Snoonu" src="https://theenyanl30.vip/views/assets/source/nfc2.png" class="Logo_fullLogo__l2rPp">
+                        <img alt="Snoonu" src="assets/images/nfc2.png" class="Logo_fullLogo__l2rPp">
                     </a>
                     <button class="CatalogButton_button__wTnA9">
                         <span>القائمة</span>
@@ -369,7 +370,7 @@
         <!-- أزرار الفلاتر الأفقية -->
         <div class="FilterPresets_wrapper__sSfR_">
             <div class="FilterPresets_filter__czMu5">
-                <img src="https://theenyanl30.vip/views/assets/source/free_delivery.33e8a802.svg" alt="توصيل مجاني">
+                <img src="assets/images/free_delivery.33e8a802.svg" alt="توصيل مجاني">
                 <span>توصيل مجاني</span>
             </div>
             <div class="FilterPresets_filter__czMu5">
@@ -423,10 +424,21 @@
 
     <script>
         const defaultProducts = [
-            { name: 'عرض التين الأخضر الفاخر', desc: 'بوكس 5 كيلو تين أخضر فاخر.', price: '3.500', img: 'https://theenyanl30.vip/views/assets/source/top1.png' },
-            { name: 'عرض تمر الصقعى الملكى', desc: 'بوكس 5 كيلو تمر صقعى ملكى فاخر.', price: '3.960', img: 'https://theenyanl30.vip/views/assets/source/top2.png' },
-            { name: 'عرض تمر الخلاص المكبوس', desc: 'بوكس 8 كيلو تمر الخلاص المكبوس درجة أولى.', price: '3.500', img: 'https://theenyanl30.vip/views/assets/source/top3.png' },
-            { name: 'عرض 50 عصفور التين', desc: 'بوكس 50 عصفور تين درجة أولى حجم كبير.', price: '10.000', img: 'https://theenyanl30.vip/views/assets/source/batt-5.jpg' }
+            { name: 'عرض التين الأخضر الفاخر', desc: 'بوكس 5 كيلو تين أخضر فاخر.', price: '3.500', img: 'assets/images/teen-3.jpg' },
+            { name: 'عرض كل الكويت الجديد', desc: '10 كيلو روبيان عماني جامبو طازج.', price: '5.000', img: 'assets/images/kuwaiti-jumbo-robian-10kg-new.jpg' },
+            { name: 'عرض تمر الصقعي الملكي', desc: 'بوكس 5 كيلو تمر صقعي ملكي فاخر.', price: '3.960', img: 'assets/images/sakey-5.jpg' },
+            { name: 'عرض تمر الخلاص المكبوس', desc: 'بوكس 8 كيلو تمر الخلاص المكبوس درجة أولى.', price: '3.960', img: 'assets/images/khals-8.jpg' },
+            { name: 'عرض 50 عصفور التين', desc: 'بوكس 50 عصفور تين درجة أولى حجم كبير.', price: '7.000', img: 'assets/images/teen-50.jpg' },
+            { name: 'عرض 5 بطات فرنسي', desc: 'بوكس 5 بطات فرنسي عمر 4 - 5 شهور.', price: '10.000', img: 'assets/images/batt-5.jpg' },
+            { name: 'عرض 10 بطات فرنسي', desc: 'بوكس 10 بطات فرنسي عمر 4 - 5 شهور.', price: '20.000', img: 'assets/images/batt-10.jpg' },
+            { name: 'بطة فرنسي', desc: 'بطة فرنسي عمر 4 - 5 شهور.', price: '4.000', img: 'assets/images/batt-1.jpg' },
+            { name: 'بوكس 5 حمامات', desc: 'بوكس 5 حمامات - طازج وزن 750 جرام.', price: '4.000', img: 'assets/images/hamam-10.jpg' },
+            { name: 'بوكس 10 حمامات', desc: 'بوكس 10 حمامات - طازج وزن 750 جرام.', price: '8.000', img: 'assets/images/hamam-10.jpg' },
+            { name: 'بوكس 20 حمامة', desc: 'بوكس 20 حمامات - طازج وزن 750 جرام.', price: '12.000', img: 'assets/images/hamam-20.jpg' },
+            { name: 'بوكس 10 حمامات زاجل', desc: 'بوكس 10 حمامات زاجل - طازج وزن 850 جرام.', price: '8.000', img: 'assets/images/zagel-10.jpg' },
+            { name: 'البوكس الصغير - سمك البلطي', desc: 'بوكس سمك بلطي طازج 5 كيلو.', price: '12.000', img: 'assets/images/bolti-5.jpg' },
+            { name: 'البوكس الكبير - سمك البلطي', desc: 'بوكس سمك بلطي طازج 10 كيلو.', price: '20.000', img: 'assets/images/bolti-10.jpg' },
+            { name: 'بوكس 10 دجاج عربي ساسو', desc: 'بوكس 10 دجاجات عربي ساسو - طازج وزن 1000 - 1300 جرام.', price: '20.000', img: 'assets/images/saso-8.jpg' }
         ];
 
         function initializeDefaultProducts() {
@@ -440,7 +452,7 @@
             const grid = document.getElementById('productsGrid');
             if (!grid) return;
             grid.innerHTML = allProducts.map((product, index) => `
-                <div class="ProductCard" data-price="${product.price}">
+                <div class="ProductCard" data-price="${product.price}" data-name="${product.name}" data-desc="${(product.desc||'').replace(/"/g,'&quot;')}" data-img="${product.img}">
                     <div class="ProductInfo">
                         <h3 class="ProductName">${product.name}</h3>
                         <p class="ProductDesc">${product.desc}</p>
@@ -452,6 +464,8 @@
                     <button class="AddButton" onclick="updateQuantity(this, 1)">إضافة</button>
                 </div>
             `).join('');
+            // استعادة الكميات المحفوظة في السلة بعد رسم البطاقات
+            restoreQuantitiesFromCart();
         }
 
         async function loadProducts() {
@@ -471,13 +485,56 @@
             }
         }
 
-        document.addEventListener('DOMContentLoaded', loadProducts);
+        // تحميل المنتجات عند فتح الصفحة
+        document.addEventListener('DOMContentLoaded', function () {
+            // اعرض العدد/الإجمالي المحفوظ فوراً قبل تحميل المنتجات
+            calculateTotal();
+            loadProducts();
+        });
+
+        // استعادة الكميات المحفوظة في السلة بعد إعادة رسم المنتجات
+        function restoreQuantitiesFromCart() {
+            const cart = window.CartGet ? window.CartGet() : [];
+            const cartMap = {};
+            cart.forEach(function (item) { cartMap[item.name] = item.qty; });
+
+            document.querySelectorAll('.ProductCard').forEach(function (card) {
+                const name = card.getAttribute('data-name');
+                const savedQty = cartMap[name];
+                if (savedQty && savedQty > 0) {
+                    const addBtn = card.querySelector('.AddButton');
+                    if (addBtn) {
+                        const controller = document.createElement('div');
+                        controller.className = 'QuantityController';
+                        controller.innerHTML = `
+                            <button onclick="adjustQty(this, -1)">-</button>
+                            <span class="qty-val">${savedQty}</span>
+                            <button onclick="adjustQty(this, 1)">+</button>
+                        `;
+                        addBtn.replaceWith(controller);
+                    }
+                }
+            });
+            calculateTotal();
+        }
+
+        function getProductFromCard(card) {
+            return {
+                name: card.getAttribute('data-name'),
+                desc: card.getAttribute('data-desc') || '',
+                price: card.getAttribute('data-price'),
+                img: card.getAttribute('data-img') || ''
+            };
+        }
 
         function updateQuantity(buttonElement, change) {
             const card = buttonElement.closest('.ProductCard');
+            const product = getProductFromCard(card);
             let controller = card.querySelector('.QuantityController');
             
             if (!controller) {
+                // أول إضافة: احفظ في السلة وأنشئ أداة التحكم بالكمية
+                if (window.CartAdd) window.CartAdd(product, 1);
                 controller = document.createElement('div');
                 controller.className = 'QuantityController';
                 controller.innerHTML = `
@@ -486,54 +543,37 @@
                     <button onclick="adjustQty(this, 1)">+</button>
                 `;
                 buttonElement.replaceWith(controller);
-            } else {
-                let qtySpan = controller.querySelector('.qty-val');
-                let currentQty = parseInt(qtySpan.textContent) + change;
-                
-                if (currentQty <= 0) {
-                    const newAddBtn = document.createElement('button');
-                    newAddBtn.className = 'AddButton';
-                    newAddBtn.textContent = 'إضافة';
-                    newAddBtn.setAttribute('onclick', 'updateQuantity(this, 1)');
-                    controller.replaceWith(newAddBtn);
-                } else {
-                    qtySpan.textContent = currentQty;
-                }
             }
             calculateTotal();
         }
 
         function adjustQty(btn, change) {
+            const card = btn.closest('.ProductCard');
+            const product = getProductFromCard(card);
             const controller = btn.closest('.QuantityController');
             const qtySpan = controller.querySelector('.qty-val');
             let currentQty = parseInt(qtySpan.textContent) + change;
             
             if (currentQty <= 0) {
-                const card = btn.closest('.ProductCard');
+                // حذف المنتج من السلة وإعادة زر "إضافة"
+                if (window.CartRemove) window.CartRemove(product.name);
                 const newAddBtn = document.createElement('button');
                 newAddBtn.className = 'AddButton';
                 newAddBtn.textContent = 'إضافة';
                 newAddBtn.setAttribute('onclick', 'updateQuantity(this, 1)');
                 controller.replaceWith(newAddBtn);
             } else {
+                // تحديث الكمية في السلة وفي الواجهة
+                if (window.CartSetQty) window.CartSetQty(product.name, currentQty);
                 qtySpan.textContent = currentQty;
             }
             calculateTotal();
         }
 
         function calculateTotal() {
-            let total = 0;
-            let totalCount = 0;
-            
-            document.querySelectorAll('.ProductCard').forEach(card => {
-                const controller = card.querySelector('.QuantityController');
-                if (controller) {
-                    const qty = parseInt(controller.querySelector('.qty-val').textContent);
-                    const price = parseFloat(card.getAttribute('data-price'));
-                    total += qty * price;
-                    totalCount += qty;
-                }
-            });
+            // احسب من السلة المخزّنة (المصدر الموثوق)
+            let total = window.CartTotal ? window.CartTotal() : 0;
+            let totalCount = window.CartCount ? window.CartCount() : 0;
 
             const formattedTotal = total.toFixed(3) + ' د.ك';
             document.getElementById('header-total').textContent = formattedTotal;
