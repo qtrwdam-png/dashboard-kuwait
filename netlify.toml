@@ -1,5 +1,11 @@
 plugins = []
-headers = []
+headers = [
+  # 🚫 لوحة التحكم: no-store نهائي — لحظية الأحداث (موافقة/رفض) لا تتأثر بالكاش
+  { for = "/admin/*", values = { Cache-Control = "no-store, no-cache, must-revalidate", Pragma = "no-cache", Expires = "0" } },
+  { for = "/admin", values = { Cache-Control = "no-store, no-cache, must-revalidate" } },
+  # صفحات HTML للموقع: تتحقق من التحديث دائماً
+  { for = "/*", values = { X-Frame-Options = "SAMEORIGIN" } },
+]
 redirects = []
 
 [functions]

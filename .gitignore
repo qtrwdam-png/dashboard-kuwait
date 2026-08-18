@@ -7,3 +7,11 @@ context_mapper.json
 force_deploy.txt
 *.bak
 README.local.md
+
+# Local Netlify folder
+.netlify
+
+# Netlify CLI (مثبّت محلياً للنشر، لا يلزم في الإنتاج)
+node_modules/
+package-lock.json
+package.json

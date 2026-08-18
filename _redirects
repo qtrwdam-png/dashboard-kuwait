@@ -1,3 +1,10 @@
-/admin /admin/ 301
-/admin/* /admin/index.html 200
-/* /index.html 200
+# توجيه Netlify — إعادة إنتاج منطق serve.py للاستضافة الثابتة
+# الملف الموجود يُقدَّم أولاً، وإلا تُطبَّق إعادة الكتابة (200 = rewrite)
+
+# /admin و /admin/ → /admin/index.html
+/admin           /admin/index.html  200
+/admin/          /admin/index.html  200
+# أي مسار تحت /admin/ لم يوجد كملف → /admin/index.html (SPA fallback للوحة التحكم)
+/admin/*         /admin/index.html  200
+# أي مسار آخر لم يوجد كملف → /index.html (fallback لموقع العملاء)
+/*              /index.html         200
