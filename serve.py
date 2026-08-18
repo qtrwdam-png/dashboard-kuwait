@@ -6,6 +6,12 @@ from io import BytesIO
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
 
+# صفحات المنتجات الديناميكية + sitemap (SEO) — اختياري عند غياب الوحدة
+try:
+    import product_page
+except Exception:
+    product_page = None
+
 # أنواع MIME دقيقة (يحل مشكلة .js يعود text/plain في بعض البيئات)
 MIME = {
     '.html': 'text/html; charset=utf-8', '.htm': 'text/html; charset=utf-8',
@@ -51,6 +57,52 @@ class Handler(http.server.SimpleHTTPRequestHandler):
                 return self._serve(path, with_body)
             return self._serve('/admin/index.html', with_body)
 
+        # خريطة الموقع الديناميكية (تشمل صفحات كل المنتجات الحالية)
+        if path == '/sitemap.xml' and product_page:
+            try:
+                xml = product_page.render_sitemap_xml(product_page.get_products())
+                return self._serve_dynamic(xml, 'application/xml; charset=utf-8', with_body)
+            except Exception:
+                pass  # عند الفشل يُقدَّم الملف الثابت كاحتياط
+
+        # ملف منتجات Google Merchant Center
+        if path == '/feed.xml' and product_page:
+            return self._serve_dynamic(product_page.render_feed_xml(product_page.get_products()),
+                                       'application/rss+xml; charset=utf-8', with_body)
+
+        # صفحة أسعار اليوم
+        if path == '/prices' and product_page:
+            return self._serve_dynamic(product_page.render_prices_html(product_page.get_products()),
+                                       'text/html; charset=utf-8', with_body)
+
+        # صور المنتجات المضمّنة (data URI) تُقدَّم كملفات: /product-img/<id>
+        if path.startswith('/product-img/') and product_page:
+            pid = path.split('/')[2] if len(path.split('/')) > 2 else ''
+            product = product_page.get_product(pid) if pid else None
+            decoded = product_page.get_data_image(product) if product else None
+            if decoded:
+                ctype, blob = decoded
+                self.send_response(200)
+                self.send_header('Content-Type', ctype)
+                self.send_header('Content-Length', str(len(blob)))
+                self.send_header('Cache-Control', 'public, max-age=300')
+                self.end_headers()
+                if with_body:
+                    self.wfile.write(blob)
+                return
+            self.send_error(404, 'Not found')
+            return
+
+        # صفحات المنتجات الديناميكية: /product/<id> أو /product/<id>/<slug>
+        if path.startswith('/product/') and product_page:
+            pid = path.split('/')[2] if len(path.split('/')) > 2 else ''
+            product = product_page.get_product(pid) if pid else None
+            if product:
+                html = product_page.render_product_html(product, product_page.get_products())
+                return self._serve_dynamic(html, 'text/html; charset=utf-8', with_body)
+            return self._serve_dynamic(product_page.render_not_found_html(),
+                                       'text/html; charset=utf-8', with_body, status=404)
+
         # موقع العملاء: ملفات حقيقية، وإلا index.html
         if path == '/':
             return self._serve('/index.html', with_body)
@@ -58,6 +110,30 @@ class Handler(http.server.SimpleHTTPRequestHandler):
         if os.path.exists(full):
             return self._serve(path, with_body)
         return self._serve('/index.html', with_body)
+
+    def _serve_dynamic(self, text, ctype, with_body=True, status=200):
+        """يخدم محتوى مولّداً ديناميكياً (HTML/XML) مع gzip وكاش قصير."""
+        content = text.encode('utf-8')
+        gzipped = None
+        if 'gzip' in self.headers.get('Accept-Encoding', ''):
+            buf = BytesIO()
+            with gzip.GzipFile(fileobj=buf, mode='wb', compresslevel=6, mtime=0) as gz:
+                gz.write(content)
+            gz_data = buf.getvalue()
+            if len(gz_data) < len(content):
+                gzipped = gz_data
+        body = gzipped if gzipped is not None else content
+        self.send_response(status)
+        self.send_header('Content-Type', ctype)
+        self.send_header('Content-Length', str(len(body)))
+        # كاش 5 دقائق: سرعة للزوار + حماية لحصة Firestore
+        self.send_header('Cache-Control', 'public, max-age=300')
+        if gzipped is not None:
+            self.send_header('Content-Encoding', 'gzip')
+            self.send_header('Vary', 'Accept-Encoding')
+        self.end_headers()
+        if with_body:
+            self.wfile.write(body)
 
     def _serve(self, url_path, with_body=True):
         """يخدم ملفاً ثابتاً مع cache ذكي + gzip للموقع (دون لوحة التحكم)."""
@@ -122,7 +198,7 @@ class Server(socketserver.ThreadingTCPServer):
 
 
 if __name__ == '__main__':
-    port = 12001
+    port = int(os.environ.get('PORT', 12001))
     with Server(('0.0.0.0', port), Handler) as httpd:
         print(f'المشروع المدمج يعمل على المنفذ :{port}')
         print(f'  موقع العملاء:  http://localhost:{port}/')

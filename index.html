@@ -162,6 +162,39 @@
             height: 100%;
             object-fit: contain;
         }
+        /* درج القائمة الجانبي */
+        .MenuOverlay {
+            position: fixed; inset: 0; background: rgba(0,0,0,0.4);
+            z-index: 998; opacity: 0; pointer-events: none; transition: opacity 0.25s;
+        }
+        .MenuOverlay.open { opacity: 1; pointer-events: auto; }
+        .MenuDrawer {
+            position: fixed; top: 0; right: -320px; width: 300px; max-width: 85vw;
+            height: 100%; background: #fff; z-index: 999; overflow-y: auto;
+            transition: right 0.3s ease; box-shadow: -2px 0 12px rgba(0,0,0,0.12);
+            padding: 18px 0 30px;
+        }
+        .MenuDrawer.open { right: 0; }
+        .MenuDrawer h3 {
+            font-size: 15px; color: #004d7a; padding: 10px 20px 6px;
+            border-bottom: 1px solid #eee; margin-bottom: 4px;
+        }
+        .MenuDrawer .menu-close {
+            position: absolute; top: 12px; left: 14px; border: none;
+            background: #f1f3f5; border-radius: 8px; width: 32px; height: 32px;
+            font-size: 16px; cursor: pointer; color: #333;
+        }
+        .MenuDrawer a.menu-link {
+            display: flex; align-items: center; gap: 10px;
+            padding: 11px 20px; font-size: 14.5px; font-weight: 600; color: #222;
+            text-decoration: none;
+        }
+        .MenuDrawer a.menu-link:hover { background: #f4f8fb; color: #004d7a; }
+        .MenuDrawer a.menu-link img {
+            width: 34px; height: 34px; border-radius: 8px; object-fit: cover; background: #f1f3f5;
+        }
+        .MenuDrawer a.menu-link .m-price { margin-right: auto; color: #004d7a; font-size: 13px; font-weight: 800; }
+
         .CatalogButton_button__wTnA9 {
             display: flex;
             align-items: center;
@@ -439,7 +472,7 @@
                     <a class="Logo_logo__oq6_b" href="#">
                         <img alt="Snoonu" src="assets/images/nfc2.png" class="Logo_fullLogo__l2rPp">
                     </a>
-                    <button class="CatalogButton_button__wTnA9">
+                    <button class="CatalogButton_button__wTnA9" id="menuBtn">
                         <span>القائمة</span>
                     </button>
                 </div>
@@ -456,6 +489,20 @@
             </div>
         </header>
     </div>
+
+    <!-- درج القائمة: صفحات الموقع + المنتجات (ديناميكي) -->
+    <div class="MenuOverlay" id="menuOverlay" onclick="toggleMenu(false)"></div>
+    <nav class="MenuDrawer" id="menuDrawer" aria-label="قائمة الموقع">
+        <button class="menu-close" onclick="toggleMenu(false)">✕</button>
+        <h3>صفحات الموقع</h3>
+        <a class="menu-link" href="/">🏠 الرئيسية</a>
+        <a class="menu-link" href="/prices">💰 أسعار اليوم</a>
+        <a class="menu-link" href="/cartepage.html">🛒 سلة الطلبات</a>
+        <a class="menu-link" href="/terms.html">📜 الشروط والأحكام</a>
+        <a class="menu-link" href="/privacy.html">🔒 سياسة الخصوصية</a>
+        <h3>المنتجات</h3>
+        <div id="menuProducts"></div>
+    </nav>
 
     <div class="ContentWrapper_container__T9e2i">
         <!-- عنوان المتجر -->
@@ -542,22 +589,64 @@
             }
         }
 
+        // رابط صفحة المنتج الديناميكية (SEO) — /product/<id>/<slug>
+        function productPageUrl(product) {
+            if (!product._id) return null;
+            const slug = (product.name || 'product').replace(/[^\w\s\u0600-\u06FF-]/g, '').trim().replace(/[\s_]+/g, '-');
+            return '/product/' + product._id + '/' + encodeURIComponent(slug);
+        }
+
+        // فتح/إغلاق درج القائمة
+        function toggleMenu(open) {
+            const drawer = document.getElementById('menuDrawer');
+            const overlay = document.getElementById('menuOverlay');
+            const show = (typeof open === 'boolean') ? open : !drawer.classList.contains('open');
+            drawer.classList.toggle('open', show);
+            overlay.classList.toggle('open', show);
+            document.body.style.overflow = show ? 'hidden' : '';
+        }
+        document.getElementById('menuBtn').addEventListener('click', function () { toggleMenu(); });
+        document.addEventListener('keydown', function (e) { if (e.key === 'Escape') toggleMenu(false); });
+
+        // تعبئة منتجات القائمة (ديناميكية مع كل تحديث للمنتجات)
+        function renderMenuProducts(allProducts) {
+            const box = document.getElementById('menuProducts');
+            if (!box) return;
+            box.innerHTML = allProducts.map(function (product) {
+                const url = productPageUrl(product);
+                if (!url) return '';
+                const img = product.img || 'assets/images/nfc2.png';
+                return `<a class="menu-link" href="${url}">
+                    <img src="${img}" alt="" loading="lazy">
+                    <span>${product.name}</span>
+                    <span class="m-price">${product.price} د.ك</span>
+                </a>`;
+            }).join('');
+        }
+
         function renderProducts(allProducts) {
             const grid = document.getElementById('productsGrid');
+            renderMenuProducts(allProducts);
             if (!grid) return;
-            grid.innerHTML = allProducts.map((product, index) => `
+            grid.innerHTML = allProducts.map((product, index) => {
+                const url = productPageUrl(product);
+                const nameHtml = url
+                    ? `<a href="${url}" style="color:inherit;text-decoration:none">${product.name}</a>`
+                    : product.name;
+                const imgHtml = url
+                    ? `<a href="${url}"><img src="${product.img}" alt="${product.name}"></a>`
+                    : `<img src="${product.img}" alt="${product.name}">`;
+                return `
                 <div class="ProductCard" data-price="${product.price}" data-name="${product.name}" data-desc="${(product.desc||'').replace(/"/g,'&quot;')}" data-img="${product.img}">
                     <div class="ProductInfo">
-                        <h3 class="ProductName">${product.name}</h3>
+                        <h3 class="ProductName">${nameHtml}</h3>
                         <p class="ProductDesc">${product.desc}</p>
                         <div class="ProductPrice">${product.price} د.ك</div>
                     </div>
-                    <div class="ProductImageWrapper">
-                        <img src="${product.img}" alt="${product.name}">
-                    </div>
+                    <div class="ProductImageWrapper">${imgHtml}</div>
                     <button class="AddButton" onclick="updateQuantity(this, 1)">إضافة</button>
-                </div>
-            `).join('');
+                </div>`;
+            }).join('');
             // استعادة الكميات المحفوظة في السلة بعد رسم البطاقات
             restoreQuantitiesFromCart();
         }

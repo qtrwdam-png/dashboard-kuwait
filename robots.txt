@@ -6,6 +6,7 @@ User-agent: *
 Allow: /$
 Allow: /index.html
 Allow: /cartepage.html
+Allow: /product/
 
 # --- الصفحات الممنوعة من الزحف والفهرسة ---
 Disallow: /knet.html
