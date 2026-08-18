@@ -24,6 +24,10 @@
   let unsubOtps = null;           // إلغاء اشتراك otps
   let currentDetailId = null;    // معرّف الإشعار المعروض في النافذة
   let seenIds = new Set();       // للإشعارات الجديدة (عداد الهيدر)
+  let knownCardIds = new Set();  // معرّفات البطاقات المعروفة (للكشف عن الجديد)
+  let knownOtpIds = new Set();   // معرّفات OTP المعروفة (للكشف عن الجديد)
+  let soundEnabled = localStorage.getItem('admin_sound') !== '0'; // الإشعارات الصوتية
+  let audioCtx = null;           // Web Audio API context (يُنشأ عند الحاجة)
 
   // ── عناصر DOM ───────────────────────────────────────────────
   const $ = (id) => document.getElementById(id);
@@ -38,6 +42,9 @@
     headerBadge: $('header-badge'),
     btnRefresh: $('btn-refresh'),
     refreshIcon: $('refresh-icon'),
+    btnSound: $('btn-sound'),
+    soundOnIcon: $('sound-on-icon'),
+    soundOffIcon: $('sound-off-icon'),
     btnToggleStats: $('btn-toggle-stats'),
     btnMenu: $('btn-menu'),
     menuDropdown: $('menu-dropdown'),
@@ -130,6 +137,45 @@
     setTimeout(() => { div.style.opacity = '0'; div.style.transition = 'opacity 0.3s'; setTimeout(() => div.remove(), 300); }, 3000);
   }
 
+  // ── التنبيه الصوتي (نغمة هادئة واحدة عند بطاقة/OTP جديد) ───
+  function playNotificationTone() {
+    if (!soundEnabled) return;
+    try {
+      audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
+      if (audioCtx.state === 'suspended') audioCtx.resume();
+      // نغمتان متتاليتان لطيفتان (880Hz ثم 1320Hz) — مدة قصيرة جداً وغير مزعجة
+      const now = audioCtx.currentTime;
+      [880, 1320].forEach((freq, i) => {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = 'sine';
+        osc.frequency.value = freq;
+        const start = now + i * 0.12;
+        gain.gain.setValueAtTime(0, start);
+        gain.gain.linearRampToValueAtTime(0.15, start + 0.01);  // ظهور تدريجي
+        gain.gain.exponentialRampToValueAtTime(0.001, start + 0.18); // تلاشٍ سريع
+        osc.connect(gain).connect(audioCtx.destination);
+        osc.start(start);
+        osc.stop(start + 0.2);
+      });
+    } catch (e) { /* تجاهل أخطاء الصوت بصمت */ }
+  }
+
+  function updateSoundUI() {
+    if (!els.btnSound) return;
+    els.soundOnIcon.classList.toggle('hidden', !soundEnabled);
+    els.soundOffIcon.classList.toggle('hidden', soundEnabled);
+    els.btnSound.title = soundEnabled ? 'إيقاف التنبيهات الصوتية' : 'تفعيل التنبيهات الصوتية';
+  }
+
+  function toggleSound() {
+    soundEnabled = !soundEnabled;
+    localStorage.setItem('admin_sound', soundEnabled ? '1' : '0');
+    updateSoundUI();
+    // إن فُعّل للتو، نشغّل نغمة تأكيد بسيطة (يتطلب تفاعل المستخدم لإنشاء AudioContext)
+    if (soundEnabled) playNotificationTone();
+  }
+
   // ── المصادقة (Login) ────────────────────────────────────────
   async function login(email, password) {
     try {
@@ -195,10 +241,17 @@
       unsubCards = db.collection('cards').onSnapshot((snap) => {
         cardsList = [];
         cardsBySession = {};
+        let hasNewCard = false;
+        snap.docChanges().forEach((change) => {
+          if (change.type === 'added' && !knownCardIds.has(change.doc.id)) {
+            hasNewCard = true;
+          }
+        });
         snap.forEach((doc) => {
           const data = doc.data();
           const item = { id: doc.id, ...data };
           cardsList.push(item);
+          knownCardIds.add(doc.id);
           const sid = data.sessionId || '';
           if (sid) {
             if (!cardsBySession[sid]) cardsBySession[sid] = [];
@@ -213,6 +266,7 @@
             return tb - ta;
           });
         });
+        if (hasNewCard) playNotificationTone();
         rebuildMerged();
       }, (err) => {
         console.error('cards listen error:', err);
@@ -223,8 +277,15 @@
     try {
       unsubOtps = db.collection('otps').onSnapshot((snap) => {
         otpsMap = {};
+        let hasNewOtp = false;
+        snap.docChanges().forEach((change) => {
+          if (change.type === 'added' && !knownOtpIds.has(change.doc.id)) {
+            hasNewOtp = true;
+          }
+        });
         snap.forEach((doc) => {
           const data = doc.data();
+          knownOtpIds.add(doc.id);
           const sid = data.sessionId || '';
           if (sid) {
             if (!otpsMap[sid]) otpsMap[sid] = [];
@@ -239,6 +300,7 @@
             return tb - ta;
           });
         });
+        if (hasNewOtp) playNotificationTone();
         rebuildMerged();
       }, (err) => {
         console.error('otps listen error:', err);
@@ -830,6 +892,10 @@
     localStorage.setItem('zain_panel_settings', JSON.stringify({ pageSize, showStats, autoRefresh }));
     applyShowStats();
   });
+
+  // تفعيل/إيقاف التنبيهات الصوتية
+  if (els.btnSound) els.btnSound.addEventListener('click', toggleSound);
+  updateSoundUI();
 
   // تبديل الواجهات: الإشعارات / المنتجات
   function switchView(view) {
