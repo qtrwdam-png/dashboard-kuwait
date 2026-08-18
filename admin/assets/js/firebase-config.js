@@ -19,3 +19,4 @@ const PANEL_PASSWORD = 'ZainDashboard2026!';
 
 const db = firebase.firestore();
 const rtd = firebase.database();
+window.db = db;

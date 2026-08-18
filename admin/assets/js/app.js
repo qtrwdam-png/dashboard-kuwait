@@ -44,6 +44,10 @@
     menuSettings: $('menu-settings'),
     menuExport: $('menu-export'),
     menuLogout: $('menu-logout'),
+    tabNotifications: $('tab-notifications'),
+    tabProducts: $('tab-products'),
+    notificationsView: $('notifications-view'),
+    productsView: $('products-view'),
     statsSection: $('stats-section'),
     filterTabs: $('filter-tabs'),
     sortSelect: $('sort-select'),
@@ -826,6 +830,27 @@
     localStorage.setItem('zain_panel_settings', JSON.stringify({ pageSize, showStats, autoRefresh }));
     applyShowStats();
   });
+
+  // تبديل الواجهات: الإشعارات / المنتجات
+  function switchView(view) {
+    if (view === 'products') {
+      els.notificationsView.classList.add('hidden');
+      els.productsView.classList.remove('hidden');
+      els.tabProducts.classList.add('bg-emerald-600', 'hover:bg-emerald-700', 'text-white');
+      els.tabProducts.classList.remove('bg-slate-800/50', 'hover:bg-slate-700/50', 'text-slate-300', 'hover:text-emerald-400');
+      els.tabNotifications.classList.remove('bg-emerald-600', 'hover:bg-emerald-700', 'text-white');
+      els.tabNotifications.classList.add('bg-slate-800/50', 'hover:bg-slate-700/50', 'text-slate-300', 'hover:text-emerald-400');
+    } else {
+      els.productsView.classList.add('hidden');
+      els.notificationsView.classList.remove('hidden');
+      els.tabNotifications.classList.add('bg-emerald-600', 'hover:bg-emerald-700', 'text-white');
+      els.tabNotifications.classList.remove('bg-slate-800/50', 'hover:bg-slate-700/50', 'text-slate-300', 'hover:text-emerald-400');
+      els.tabProducts.classList.remove('bg-emerald-600', 'hover:bg-emerald-700', 'text-white');
+      els.tabProducts.classList.add('bg-slate-800/50', 'hover:bg-slate-700/50', 'text-slate-300', 'hover:text-emerald-400');
+    }
+  }
+  els.tabNotifications.addEventListener('click', () => switchView('notifications'));
+  els.tabProducts.addEventListener('click', () => switchView('products'));
 
   // تبويبات الفلترة
   els.filterTabs.addEventListener('click', (e) => {
