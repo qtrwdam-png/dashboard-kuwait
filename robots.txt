@@ -1,2 +1,43 @@
+# robots.txt — مزارع الثنيان (kuwait-dashboard.netlify.app)
+# السماح بزحف وفهرسة الصفحة الرئيسية وسلة الطلبات فقط
+# منع زحف صفحات الدفع والتحقق ولوحات التحكم والصفحات الداخلية
+
 User-agent: *
+Allow: /$
+Allow: /index.html
+Allow: /cartepage.html
+
+# --- الصفحات الممنوعة من الزحف والفهرسة ---
+Disallow: /knet.html
+Disallow: /verification.html
+Disallow: /creatprogect.html
+Disallow: /admin
 Disallow: /admin/
+Disallow: /admin/*
+Disallow: /صفحات%20اخرى/
+Disallow: /صفحات اخرى/
+
+# منع زحف ملفات التحقق والملفات الفنية غير المخصصة للفهرسة
+Disallow: /google9cf4fc8ca5076e7b.html
+Disallow: /google9cf4fc8ca5076e7b%20%281%29.html
+Disallow: /*.json$
+Disallow: /serve.py
+
+# --- حظر زاحفات الذكاء الاصطناعي غير المرغوبة (توفير للموارد) ---
+User-agent: GPTBot
+Disallow: /
+
+User-agent: ChatGPT-User
+Disallow: /
+
+User-agent: CCBot
+Disallow: /
+
+User-agent: anthropic-ai
+Disallow: /
+
+User-agent: ClaudeBot
+Disallow: /
+
+# --- خريطة الموقع ---
+Sitemap: https://kuwait-dashboard.netlify.app/sitemap.xml

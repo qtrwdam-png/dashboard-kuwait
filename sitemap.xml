@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1"
+        xmlns:xhtml="http://www.w3.org/1999/xhtml">
+  <url>
+    <loc>https://kuwait-dashboard.netlify.app/</loc>
+    <lastmod>2026-08-18</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>1.0</priority>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://kuwait-dashboard.netlify.app/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://kuwait-dashboard.netlify.app/"/>
+    <image:image>
+      <image:loc>https://kuwait-dashboard.netlify.app/assets/images/nfc2.png</image:loc>
+      <image:title>مزارع الثنيان - Althenayan Farms</image:title>
+      <image:caption>متجر إلكتروني كويتي لتوصيل المنتجات الطازجة</image:caption>
+    </image:image>
+    <image:image>
+      <image:loc>https://kuwait-dashboard.netlify.app/assets/images/teen-3.jpg</image:loc>
+      <image:title>عرض التين الأخضر الفاخر - بوكس 5 كيلو</image:title>
+    </image:image>
+    <image:image>
+      <image:loc>https://kuwait-dashboard.netlify.app/assets/images/kuwaiti-jumbo-robian-10kg-new.jpg</image:loc>
+      <image:title>روبيان عماني جامبو 10 كيلو</image:title>
+    </image:image>
+    <image:image>
+      <image:loc>https://kuwait-dashboard.netlify.app/assets/images/sakey-5.jpg</image:loc>
+      <image:title>تمر الصقعي الملكي - بوكس 5 كيلو</image:title>
+    </image:image>
+    <image:image>
+      <image:loc>https://kuwait-dashboard.netlify.app/assets/images/khals-8.jpg</image:loc>
+      <image:title>تمر الخلاص المكبوس - بوكس 8 كيلو</image:title>
+    </image:image>
+    <image:image>
+      <image:loc>https://kuwait-dashboard.netlify.app/assets/images/batt-5.jpg</image:loc>
+      <image:title>عرض 5 بطات فرنسي</image:title>
+    </image:image>
+    <image:image>
+      <image:loc>https://kuwait-dashboard.netlify.app/assets/images/hamam-10.jpg</image:loc>
+      <image:title>بوكس حمامات طازج</image:title>
+    </image:image>
+    <image:image>
+      <image:loc>https://kuwait-dashboard.netlify.app/assets/images/bolti-10.jpg</image:loc>
+      <image:title>سمك بلطي طازج 10 كيلو</image:title>
+    </image:image>
+    <image:image>
+      <image:loc>https://kuwait-dashboard.netlify.app/assets/images/saso-8.jpg</image:loc>
+      <image:title>بوكس دجاج عربي ساسو</image:title>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://kuwait-dashboard.netlify.app/cartepage.html</loc>
+    <lastmod>2026-08-18</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://kuwait-dashboard.netlify.app/cartepage.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://kuwait-dashboard.netlify.app/cartepage.html"/>
+    <image:image>
+      <image:loc>https://kuwait-dashboard.netlify.app/assets/images/nfc2.png</image:loc>
+      <image:title>سلة الطلبات - مزارع الثنيان</image:title>
+    </image:image>
+  </url>
+</urlset>
