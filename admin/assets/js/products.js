@@ -57,25 +57,33 @@
     $('product-count').textContent = products.length;
 
     if (products.length === 0) {
-      grid.innerHTML = '<div class="text-center py-10 text-slate-500"><p>لا توجد منتجات</p></div>';
+      grid.innerHTML = '<tr><td colspan="5" class="text-center py-10 text-slate-500">لا توجد منتجات</td></tr>';
       return;
     }
 
     grid.innerHTML = products.map((product, index) => `
-      <div class="bg-slate-800/40 border border-slate-700/50 rounded-xl p-4 flex gap-4 hover:border-emerald-500/50 transition-colors">
-        <div class="w-24 h-24 bg-slate-900 rounded-lg overflow-hidden flex-shrink-0">
-          <img src="${product.img}" alt="${product.name}" class="w-full h-full object-cover">
-        </div>
-        <div class="flex-1 min-w-0">
-          <div class="font-bold text-white mb-1 truncate">${product.name}</div>
-          <div class="text-sm text-slate-400 mb-2 line-clamp-2">${product.desc}</div>
-          <div class="font-extrabold text-emerald-400">${product.price} د.ك</div>
-        </div>
-        <div class="flex flex-col gap-2 justify-center flex-shrink-0 w-24">
-          <button class="bg-emerald-500/10 text-emerald-400 hover:bg-emerald-600 hover:text-white border border-emerald-500/30 rounded-lg py-2 text-xs font-bold transition-colors" onclick="window.adminProducts.edit(${index})">✏️ تعديل</button>
-          <button class="bg-red-500/10 text-red-400 hover:bg-red-600 hover:text-white border border-red-500/30 rounded-lg py-2 text-xs font-bold transition-colors" onclick="window.adminProducts.remove(${index})">🗑️ حذف</button>
-        </div>
-      </div>
+      <tr class="border-b border-slate-800/50 hover:bg-slate-800/30 transition-colors">
+        <td class="px-4 py-3">
+          <div class="w-12 h-12 bg-slate-800 rounded-lg overflow-hidden flex-shrink-0">
+            <img src="${product.img}" alt="${product.name}" class="w-full h-full object-cover">
+          </div>
+        </td>
+        <td class="px-4 py-3">
+          <span class="font-bold text-white text-sm">${product.name}</span>
+        </td>
+        <td class="px-4 py-3">
+          <span class="text-slate-400 text-sm line-clamp-1">${product.desc}</span>
+        </td>
+        <td class="px-4 py-3">
+          <span class="font-extrabold text-emerald-400 text-sm whitespace-nowrap">${product.price} د.ك</span>
+        </td>
+        <td class="px-4 py-3">
+          <div class="flex items-center gap-2 justify-center">
+            <button class="px-3 py-1.5 rounded-md text-xs font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 hover:bg-emerald-600 hover:text-white transition-colors" onclick="window.adminProducts.edit(${index})">✏️ تعديل</button>
+            <button class="px-3 py-1.5 rounded-md text-xs font-bold bg-red-500/10 text-red-400 border border-red-500/30 hover:bg-red-600 hover:text-white transition-colors" onclick="window.adminProducts.remove(${index})">🗑️ حذف</button>
+          </div>
+        </td>
+      </tr>
     `).join('');
   }
 

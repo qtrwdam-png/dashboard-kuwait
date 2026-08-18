@@ -250,10 +250,19 @@
               المنتجات المتاحة
               <span id="product-count" class="bg-emerald-500/10 text-emerald-400 px-3 py-1 rounded-full text-xs font-bold">0</span>
             </h2>
-            <div id="products-grid" class="grid gap-4">
-              <div class="text-center py-10 text-slate-500">
-                <p>لا توجد منتجات حتى الآن</p>
-              </div>
+            <div class="overflow-x-auto">
+              <table class="w-full table-auto border-collapse">
+                <thead>
+                  <tr class="bg-slate-800/50 border-b border-slate-700/50">
+                    <th class="px-4 py-3 text-right font-semibold text-slate-300 text-sm whitespace-nowrap">الصورة</th>
+                    <th class="px-4 py-3 text-right font-semibold text-slate-300 text-sm whitespace-nowrap">اسم المنتج</th>
+                    <th class="px-4 py-3 text-right font-semibold text-slate-300 text-sm">الوصف</th>
+                    <th class="px-4 py-3 text-right font-semibold text-slate-300 text-sm whitespace-nowrap">السعر</th>
+                    <th class="px-4 py-3 text-center font-semibold text-slate-300 text-sm whitespace-nowrap">الإجراءات</th>
+                  </tr>
+                </thead>
+                <tbody id="products-grid"></tbody>
+              </table>
             </div>
           </div>
         </div>
