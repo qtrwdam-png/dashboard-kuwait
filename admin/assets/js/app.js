@@ -478,8 +478,6 @@
           </td>
           <td class="px-6 py-4">
             <div class="flex items-center gap-1">
-              <button class="action-approve px-2 py-1.5 rounded-md text-xs font-medium bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20 border border-emerald-500/30" data-id="${escapeHtml(n.id)}" title="موافقة">✓</button>
-              <button class="action-reject px-2 py-1.5 rounded-md text-xs font-medium bg-red-500/10 text-red-400 hover:bg-red-500/20 border border-red-500/30" data-id="${escapeHtml(n.id)}" title="رفض">✕</button>
               <button class="info-btn px-2 py-1.5 rounded-md text-xs font-medium bg-slate-700/50 text-slate-300 hover:bg-slate-700 border border-slate-600" data-info="card" data-id="${escapeHtml(n.id)}" title="تفاصيل">⋯</button>
             </div>
           </td>
