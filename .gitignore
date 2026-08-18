@@ -3,3 +3,7 @@ server.log
 __pycache__/
 .agent_tmp/
 .env
+context_mapper.json
+force_deploy.txt
+*.bak
+README.local.md

