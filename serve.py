@@ -2,15 +2,21 @@ import http.server
 import socketserver
 import os
 import gzip
+import json
 from io import BytesIO
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
 
 # صفحات المنتجات الديناميكية + sitemap (SEO) — اختياري عند غياب الوحدة
+PP_ERROR = None
 try:
     import product_page
-except Exception:
+except Exception as exc:
     product_page = None
+    PP_ERROR = repr(exc)
+    print('product_page import FAILED: %r' % exc, flush=True)
+
+APP_VERSION = 'seo-v2'
 
 # أنواع MIME دقيقة (يحل مشكلة .js يعود text/plain في بعض البيئات)
 MIME = {
@@ -47,6 +53,20 @@ class Handler(http.server.SimpleHTTPRequestHandler):
 
     def _handle(self, with_body=True):
         path = self.path.split('?', 1)[0]
+
+        # فحص صحة الإصدار المنشور (لتشخيص النشر)
+        if path == '/healthz':
+            body = json.dumps({'version': APP_VERSION,
+                               'product_page': product_page is not None,
+                               'product_page_error': PP_ERROR}).encode('utf-8')
+            self.send_response(200)
+            self.send_header('Content-Type', 'application/json; charset=utf-8')
+            self.send_header('Content-Length', str(len(body)))
+            self.send_header('Cache-Control', 'no-store')
+            self.end_headers()
+            if with_body:
+                self.wfile.write(body)
+            return
 
         # لوحة التحكم: /admin و /admin/...
         if path == '/admin' or path == '/admin/':
