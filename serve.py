@@ -56,9 +56,16 @@ class Handler(http.server.SimpleHTTPRequestHandler):
 
         # فحص صحة الإصدار المنشور (لتشخيص النشر)
         if path == '/healthz':
-            body = json.dumps({'version': APP_VERSION,
-                               'product_page': product_page is not None,
-                               'product_page_error': PP_ERROR}).encode('utf-8')
+            info = {'version': APP_VERSION,
+                    'product_page': product_page is not None,
+                    'product_page_error': PP_ERROR}
+            if product_page:
+                try:
+                    info['products_count'] = len(product_page.get_products())
+                    info['products_fetch_error'] = product_page._state.get('last_error')
+                except Exception as exc:
+                    info['products_fetch_error'] = repr(exc)
+            body = json.dumps(info, ensure_ascii=False).encode('utf-8')
             self.send_response(200)
             self.send_header('Content-Type', 'application/json; charset=utf-8')
             self.send_header('Content-Length', str(len(body)))

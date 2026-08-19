@@ -31,6 +31,7 @@ CACHE_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), '.products
 _lock = threading.Lock()
 _mem_cache = {'products': None, 'ts': 0}
 _id_token = {'token': None, 'expires': 0}
+_state = {'last_error': None}
 
 
 # ═══════════════════════ جلب البيانات من Firestore ═══════════════════════
@@ -134,8 +135,10 @@ def get_products():
                 _mem_cache['ts'] = now
             _write_disk_cache(products)
             return products
-    except Exception:
-        pass
+        _state['last_error'] = 'empty documents from Firestore'
+    except Exception as exc:
+        _state['last_error'] = repr(exc)
+        print('products fetch FAILED: %r' % exc, flush=True)
     # فشل الجلب: استخدم آخر نسخة معروفة (ذاكرة قديمة أو قرص)
     with _lock:
         if _mem_cache['products'] is not None:
