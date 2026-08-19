@@ -357,7 +357,7 @@ h1 {{ font-size: 24px; color: #111; line-height: 1.5; }}
   </section>
 </main>
 <footer class="footer">{site_name} — توصيل المنتجات الطازجة في الكويت 🇰🇼<br>
-<a href="/prices" style="color:#004d7a">أسعار منتجاتنا اليوم</a> · <a href="/terms.html" style="color:#004d7a">الشروط والأحكام</a> · <a href="/privacy.html" style="color:#004d7a">سياسة الخصوصية</a></footer>
+<a href="/prices" style="color:#004d7a">أسعار منتجاتنا اليوم</a> · <a href="/terms.html" style="color:#004d7a">الشروط والأحكام</a> · <a href="/privacy.html" style="color:#004d7a">سياسة الخصوصية</a> · <a href="/returns.html" style="color:#004d7a">سياسة الاسترجاع</a></footer>
 <div class="toast" id="toast">✅ تمت الإضافة إلى السلة</div>
 <script>
 var PRODUCT = {product_js};
@@ -483,6 +483,7 @@ def render_sitemap_xml(products, lastmod=None):
         (BASE_URL + '/cartepage.html', '0.8', 'daily'),
         (BASE_URL + '/terms.html', '0.3', 'monthly'),
         (BASE_URL + '/privacy.html', '0.3', 'monthly'),
+        (BASE_URL + '/returns.html', '0.3', 'monthly'),
     ]
     out = ['<?xml version="1.0" encoding="UTF-8"?>',
            '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"',
