@@ -105,12 +105,20 @@ def _fetch_products():
     return products
 
 
+SNAPSHOT_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'products-snapshot.json')
+
+
 def _read_disk_cache():
-    try:
-        with open(CACHE_FILE, 'r', encoding='utf-8') as f:
-            return json.load(f)
-    except Exception:
-        return None
+    # أولاً آخر نسخة ناجحة الجلب (تُحدَّث تلقائياً)، ثم اللقطة المرفوعة مع المستودع
+    for path in (CACHE_FILE, SNAPSHOT_FILE):
+        try:
+            with open(path, 'r', encoding='utf-8') as f:
+                data = json.load(f)
+            if data:
+                return data
+        except Exception:
+            continue
+    return None
 
 
 def _write_disk_cache(products):
